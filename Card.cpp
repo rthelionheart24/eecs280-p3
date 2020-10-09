@@ -153,6 +153,7 @@ std::string Suit_next(const std::string &suit)
 std::ostream &operator<<(std::ostream &os, const Card &card)
 {
     os << card.get_rank() << " of " << card.get_suit() << std::endl;
+    return os;
 }
 
 bool Card_less(const Card &a, const Card &b, const std::string &trump)
