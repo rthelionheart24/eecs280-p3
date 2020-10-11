@@ -19,10 +19,9 @@ private:
     std::vector<Card> hand;
 
 public:
-    Simple_player::Simple_player(){};
-    Simple_player::Simple_player(std::string &in_name) : name(in_name){};
+    Simple_player::Simple_player(const std::string &in_name) : name(in_name){};
 
-    const std::string &get_name()
+    const std::string &get_name() const
     {
         return name;
     }
@@ -90,8 +89,8 @@ public:
     void add_and_discard(const Card &upcard)
     {
         assert(hand.size() != 0);
-        hand.push_back(upcard);
-        hand.erase(hand.begin() + find_lowest(upcard.get_suit()));
+        add_card(upcard);
+        hand.erase(hand.begin() + find_lowest(hand, upcard.get_suit()));
     }
 
     Card lead_card(const std::string &trump)
@@ -123,7 +122,7 @@ public:
             if (hand.empty())
             {
                 hand = trumps;
-                lead = hand[find_highest(trump)];
+                lead = hand[find_highest(hand, trump)];
                 return lead;
             }
             //If some are not trump cards
@@ -147,8 +146,8 @@ public:
         Card play;
         if (!have_lead(lead_suit))
         {
-            play = hand[find_lowest(trump)];
-            hand.erase(hand.begin() + find_lowest(trump));
+            play = hand[find_lowest(hand, trump)];
+            hand.erase(hand.begin() + find_lowest(hand, trump));
             return play;
         }
         else
@@ -164,11 +163,14 @@ public:
                 }
             }
 
-            play = find_highest(trump);
+            play = lead[find_highest(lead, trump)];
+            lead.erase(lead.begin() + find_highest(lead, trump));
+            hand.insert(hand.end(), lead.begin(), lead.end());
+            return play;
         }
     }
 
-    int find_lowest(const std::string &trump)
+    int find_lowest(std::vector<Card> deck, const std::string &trump)
     {
         Card *lowest = &hand[0];
         int track = 0;
@@ -184,7 +186,7 @@ public:
         return track;
     }
 
-    int find_highest(const std::string &trump)
+    int find_highest(std::vector<Card> deck, const std::string &trump)
     {
         Card *highest = &hand[0];
         int track = 0;
@@ -199,14 +201,16 @@ public:
 
         return track;
     }
+    //Additional functions belonging to Simple_player
 
     //REQUIRES No one to order up
     //EFFECT Forces the dealer to order up the suit
     void screw_the_dealer(const Card &upcard, std::string &order_up_suit) const
     {
+        std::cout << "Screw the dealer!!!" << std::endl;
         order_up_suit = Suit_next(upcard.get_suit());
     }
-
+    //EFFECT Check whether there are trump cards in hand
     bool have_trump(const std::string &trump)
     {
         for (int i = 0; i < hand.size(); i++)
@@ -216,6 +220,7 @@ public:
         }
         return false;
     }
+    //EFFECT Check whether there are cards of the leading suit in hand
     bool have_lead(const std::string &lead)
     {
         for (int i = 0; i < hand.size(); i++)
@@ -226,6 +231,116 @@ public:
         return false;
     }
 };
+
+class Human_player : public Player
+{
+private:
+    std::string name;
+    std::vector<Card> hand;
+
+public:
+    Human_player::Human_player(const std::string &in_name) : name(in_name){};
+
+    const std::string &get_name() const
+    {
+        return name;
+    }
+
+    void add_card(const Card &c)
+    {
+        assert(hand.size() < MAX_HAND_SIZE);
+        hand.push_back(c);
+    }
+    bool make_trump(const Card &upcard, bool is_dealer,
+                    int round, std::string &order_up_suit) const
+    {
+        assert(round <= 2);
+        std::sort(hand.begin(), hand.end());
+
+        for (int i = 0; i < hand.size(); i++)
+            std::cout << hand[i] << std::endl;
+
+        std::string choice;
+        std::cout << "Order up or pass?" << std::endl
+                  << "Spades\n"
+                  << "Hearts\n"
+                  << "Clubs\n"
+                  << "Diamonds\n"
+                  << "pass" << std::endl;
+        std::cin >> choice;
+        if (choice == "pass")
+            return false;
+        else
+        {
+            order_up_suit = choice;
+            return true;
+        }
+    }
+
+    void add_and_discard(const Card &upcard)
+    {
+        assert(hand.size() != 0);
+        add_card(upcard);
+        std::sort(hand.begin(), hand.end());
+
+        for (int i = 0; i < hand.size(); i++)
+            std::cout << i << ". " << hand[i] << std::endl;
+
+        std::string choice;
+        std::cout << "Which one do you want to discard?\n";
+        std::cin >> choice;
+        hand.erase(hand.begin() + stoi(choice));
+    }
+    Card lead_card(const std::string &trump)
+    {
+        assert(hand.size() != 0);
+        assert(check_suit(trump));
+
+        std::sort(hand.begin(), hand.end());
+
+        for (int i = 0; i < hand.size(); i++)
+            std::cout << i << ". " << hand[i] << std::endl;
+        std::string choice;
+        Card lead;
+        std::cout << "Which one do you want lead?\n";
+        std::cin >> choice;
+        lead = hand[stoi(choice)];
+        hand.erase(hand.begin() + stoi(choice));
+        return lead;
+    }
+
+    Card play_card(const Card &led_card, const std::string &trump)
+    {
+
+        assert(hand.size() != 0);
+        assert(check_suit(trump));
+
+        std::sort(hand.begin(), hand.end());
+
+        for (int i = 0; i < hand.size(); i++)
+            std::cout << i << ". " << hand[i] << std::endl;
+        std::string choice;
+        Card play;
+        std::cout << "Which one do you want play?\n";
+        std::cin >> choice;
+        play = hand[stoi(choice)];
+        hand.erase(hand.begin() + stoi(choice));
+        return play;
+    }
+};
+
+Player *Player_factory(const std::string &name, const std::string &strategy)
+{
+    if (strategy == "Simple")
+
+        return new Simple_player(name);
+
+    if (strategy == "Human")
+        return new Human_player(name);
+
+    assert(false);
+    return nullptr;
+}
 
 bool check_rank(const std::string &rank_in)
 {
