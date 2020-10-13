@@ -20,87 +20,15 @@ class Simple_player : public Player
 private:
     std::string name;
     std::vector<Card> hand;
-    int points, tricks_won;
-    bool is_dealer, is_defender, is_leader;
 
 public:
     Simple_player(const std::string &in_name) : name(in_name)
     {
-        points = 0;
-        tricks_won = 0;
-        is_dealer = false;
-        is_defender = false;
-        is_leader = false;
     }
 
     const std::string &get_name() const
     {
         return name;
-    }
-    const int &get_points() const
-    {
-        return points;
-    }
-    void set_points(const int new_points)
-    {
-        points = new_points;
-    }
-    int calculate_points() const
-    {
-        if (is_defender)
-        {
-            if (tricks_won > 2)
-                return 2;
-            else
-                return 0;
-        }
-        else
-        {
-            if (tricks_won < 3)
-                return 0;
-            else if (tricks_won == 5)
-                return 2;
-            else
-                return 1;
-        }
-    }
-    const int &get_tricks_won() const
-    {
-        return tricks_won;
-    }
-    void set_tricks_won(const int new_tricks_won)
-    {
-        tricks_won = new_tricks_won;
-    }
-
-    void win_trick()
-    {
-        tricks_won++;
-    }
-
-    const bool &check_dealer() const
-    {
-        return is_dealer;
-    }
-    void set_dealer(bool &dealer)
-    {
-        is_dealer = dealer;
-    }
-    const bool &check_defender() const
-    {
-        return is_defender;
-    }
-    void set_defender(bool &defender)
-    {
-        is_defender = defender;
-    }
-    const bool &check_leader() const
-    {
-        return is_leader;
-    }
-    void set_leader(bool &leader)
-    {
-        is_leader = leader;
     }
 
     void add_card(const Card &c)
@@ -312,87 +240,15 @@ class Human_player : public Player
 private:
     std::string name;
     std::vector<Card> hand;
-    int points, tricks_won;
-    bool is_dealer, is_defender, is_leader;
 
 public:
     Human_player(const std::string &in_name) : name(in_name)
     {
-        points = 0;
-        tricks_won = 0;
-        is_dealer = false;
-        is_defender = false;
-        is_leader = false;
     }
 
     const std::string &get_name() const
     {
         return name;
-    }
-    const int &get_points() const
-    {
-        return points;
-    }
-    void set_points(const int new_points)
-    {
-        points = new_points;
-    }
-    int calculate_points() const
-    {
-        if (is_defender)
-        {
-            if (tricks_won > 2)
-                return 2;
-            else
-                return 0;
-        }
-        else
-        {
-            if (tricks_won < 3)
-                return 0;
-            else if (tricks_won == 5)
-                return 2;
-            else
-                return 1;
-        }
-    }
-    const int &get_tricks_won() const
-    {
-        return tricks_won;
-    }
-    void set_tricks_won(const int new_tricks_won)
-    {
-        tricks_won = new_tricks_won;
-    }
-
-    void win_trick()
-    {
-        tricks_won++;
-    }
-
-    const bool &check_dealer() const
-    {
-        return is_dealer;
-    }
-    void set_dealer(bool &dealer)
-    {
-        is_dealer = dealer;
-    }
-    const bool &check_defender() const
-    {
-        return is_defender;
-    }
-    void set_defender(bool &defender)
-    {
-        is_defender = defender;
-    }
-    const bool &check_leader() const
-    {
-        return is_leader;
-    }
-    void set_leader(bool &leader)
-    {
-        is_leader = leader;
     }
 
     void add_card(const Card &c)
