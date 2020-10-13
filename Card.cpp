@@ -34,8 +34,12 @@ constexpr const char *const Card::SUIT_CLUBS;
 constexpr const char *const Card::SUIT_DIAMONDS;
 
 // add your code below
+bool check_rank(const std::string &rank_in);
+bool check_suit(const std::string &suit_in);
 //Public functions
-Card::Card() : rank(RANK_TWO), suit(SUIT_SPADES) {}
+Card::Card() : rank(RANK_TWO), suit(SUIT_SPADES)
+{
+}
 
 Card::Card(const std::string &rank_in, const std::string &suit_in) : rank(rank_in), suit(suit_in)
 {
@@ -64,9 +68,9 @@ std::string Card::get_suit(const std::string &trump) const
 
 bool Card::is_face() const
 {
-    if (this->get_rank() == RANK_JACK &&
-        this->get_rank() == RANK_QUEEN &&
-        this->get_rank() == RANK_KING &&
+    if (this->get_rank() == RANK_JACK ||
+        this->get_rank() == RANK_QUEEN ||
+        this->get_rank() == RANK_KING ||
         this->get_rank() == RANK_ACE)
         return true;
     return false;
@@ -97,14 +101,17 @@ bool Card::is_trump(const std::string &trump) const
 //non-class functions
 bool operator<(const Card &lhs, const Card &rhs)
 {
-    if (lhs.get_rank() < rhs.get_rank())
+
+    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_suit()) <
+        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_suit()))
         return true;
-    else if (lhs.get_rank() > rhs.get_rank())
+    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_suit()) >
+             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_suit()))
         return false;
     else
     {
-        if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) <
-            find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
+        if (find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, lhs.get_suit()) <
+            find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, rhs.get_suit()))
             return true;
         return false;
     }
@@ -112,14 +119,18 @@ bool operator<(const Card &lhs, const Card &rhs)
 
 bool operator>(const Card &lhs, const Card &rhs)
 {
-    if (lhs.get_rank() > rhs.get_rank())
+
+    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_suit()) >
+        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_suit()))
         return true;
-    else if (lhs.get_rank() < rhs.get_rank())
+    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_suit()) <
+             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_suit()))
         return false;
     else
     {
-        if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) >
-            find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
+
+        if (find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, lhs.get_suit()) <
+            find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, rhs.get_suit()))
             return true;
         return false;
     }
@@ -147,12 +158,12 @@ std::string Suit_next(const std::string &suit)
         return "Spades";
     else if (suit == "Hearts")
         return "Diamonds";
-    else if (suit == "Diamonds")
+    else
         return "Hearts";
 }
 std::ostream &operator<<(std::ostream &os, const Card &card)
 {
-    os << card.get_rank() << " of " << card.get_suit() << std::endl;
+    os << card.get_rank() << " of " << card.get_suit();
     return os;
 }
 
@@ -175,7 +186,7 @@ bool Card_less(const Card &a, const Card &b, const std::string &trump)
             return false;
         return a < b;
     }
-    if (!a.is_trump(trump) && !b.is_trump(trump))
+    else
         return a < b;
 }
 bool Card_less(const Card &a, const Card &b, const Card &led_card,
@@ -199,7 +210,7 @@ bool Card_less(const Card &a, const Card &b, const Card &led_card,
             return false;
         return a < b;
     }
-    if (!a.is_trump(trump) && !b.is_trump(trump))
+    else
     {
         if (a.get_suit() == led_suit && b.get_suit() != led_suit)
             return false;

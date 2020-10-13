@@ -15,7 +15,7 @@ Pack::Pack()
     this->reset();
     for (int i = 0; i < NUM_SUITS; i++)
     {
-        for (int j = 8; j < NUM_RANKS; j++)
+        for (int j = 7; j < NUM_RANKS; j++)
         {
 
             cards[next++] = Card(RANK_NAMES_BY_WEIGHT[j], SUIT_NAMES_BY_WEIGHT[i]);
@@ -62,25 +62,24 @@ void Pack::shuffle()
             if (j < length / 2)
                 p1[j] = this->deal_one();
             else
-                p2[j] = this->deal_one();
+                p2[j - 12] = this->deal_one();
         }
         this->reset();
+        int track1 = 0, track2 = 0;
         for (int k = 0; k < length; k++)
         {
             if (k % 2 == 0)
-                cards[next] = p2[k];
+                cards[next++] = p2[track2++];
             else
-                cards[next] = p1[k];
-            next++;
+                cards[next++] = p1[track1++];
         }
         this->reset();
     }
-    this->reset();
 }
 
 bool Pack::empty() const
 {
-    if (this->next == 23)
+    if (this->next == 24)
         return true;
     return false;
 }

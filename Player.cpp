@@ -9,11 +9,14 @@
 #include <sstream>
 #include <algorithm>
 #include "Player.h"
-#include <Pack.h>
-#include <Card.h>
+#include "Card.h"
+
+bool player_check_rank(const std::string &rank_in);
+bool player_check_suit(const std::string &suit_in);
 
 class Simple_player : public Player
 {
+
 private:
     std::string name;
     std::vector<Card> hand;
@@ -21,7 +24,7 @@ private:
     bool is_dealer, is_defender, is_leader;
 
 public:
-    Simple_player::Simple_player(const std::string &in_name) : name(in_name)
+    Simple_player(const std::string &in_name) : name(in_name)
     {
         points = 0;
         tricks_won = 0;
@@ -34,7 +37,7 @@ public:
     {
         return name;
     }
-    int get_points()
+    const int &get_points() const
     {
         return points;
     }
@@ -42,7 +45,7 @@ public:
     {
         points = new_points;
     }
-    int calculate_points()
+    int calculate_points() const
     {
         if (is_defender)
         {
@@ -61,7 +64,7 @@ public:
                 return 1;
         }
     }
-    int get_tricks_won()
+    const int &get_tricks_won() const
     {
         return tricks_won;
     }
@@ -75,7 +78,7 @@ public:
         tricks_won++;
     }
 
-    bool check_dealer()
+    const bool &check_dealer() const
     {
         return is_dealer;
     }
@@ -83,7 +86,7 @@ public:
     {
         is_dealer = dealer;
     }
-    bool check_defender()
+    const bool &check_defender() const
     {
         return is_defender;
     }
@@ -91,11 +94,11 @@ public:
     {
         is_defender = defender;
     }
-    bool check_leader()
+    const bool &check_leader() const
     {
         return is_leader;
     }
-    void set_dealer(bool &leader)
+    void set_leader(bool &leader)
     {
         is_leader = leader;
     }
@@ -117,9 +120,9 @@ public:
         {
             suit_considered = upcard.get_suit();
             int num_trump = 0;
-            for (int i = 0; i < hand.size(); i++)
+            for (unsigned int i = 0; i < hand.size(); i++)
             {
-                if (hand[i].is_trump(suit_considered))
+                if (hand[i].is_trump(suit_considered) && hand[i].is_face())
                     num_trump++;
             }
 
@@ -131,7 +134,7 @@ public:
             return false;
         }
         //During round 2
-        else if (round == 2)
+        else
         {
             //The new suit we are considering
             suit_considered = Suit_next(upcard.get_suit());
@@ -145,7 +148,7 @@ public:
 
             //Count how many cards of the new suits we have
             int num_next = 0;
-            for (int i = 0; i < hand.size(); i++)
+            for (unsigned int i = 0; i < hand.size(); i++)
             {
                 if (hand[i].is_trump(suit_considered))
                     num_next++;
@@ -163,14 +166,15 @@ public:
     void add_and_discard(const Card &upcard)
     {
         assert(hand.size() != 0);
-        add_card(upcard);
-        hand.erase(hand.begin() + find_lowest(hand, upcard.get_suit()));
+        hand.push_back(upcard);
+        int lowest = find_lowest(hand, upcard.get_suit());
+        hand.erase(hand.begin() + lowest);
     }
 
     Card lead_card(const std::string &trump)
     {
         assert(hand.size() != 0);
-        assert(check_suit(trump));
+        assert(player_check_suit(trump));
         std::sort(hand.begin(), hand.end());
         Card lead;
         //If there is no trump card, the last element after sort is the greatest
@@ -184,16 +188,13 @@ public:
         else
         {
             std::vector<Card> trumps;
-            for (int i = 0; i < hand.size(); i++)
+            for (unsigned int i = 0; i < hand.size(); i++)
             {
                 if (hand[i].is_trump(trump))
-                {
                     trumps.push_back(hand[i]);
-                    hand.erase(hand.begin() + i);
-                }
             }
             //If all are trump cards
-            if (hand.empty())
+            if (hand.size() == trumps.size())
             {
                 hand = trumps;
                 lead = hand[find_highest(hand, trump)];
@@ -215,7 +216,7 @@ public:
     {
 
         assert(hand.size() != 0);
-        assert(check_suit(trump));
+        assert(player_check_suit(trump));
         std::string lead_suit = led_card.get_suit();
         Card play;
         if (!have_lead(lead_suit))
@@ -228,7 +229,7 @@ public:
         {
             //A seperate vector for cards with the leading suit
             std::vector<Card> lead;
-            for (int i = 0; i < hand.size(); i++)
+            for (unsigned int i = 0; i < hand.size(); i++)
             {
                 if (hand[i].get_suit() == led_card.get_suit())
                 {
@@ -248,7 +249,7 @@ public:
     {
         Card *lowest = &hand[0];
         int track = 0;
-        for (int i = 0; i < hand.size(); i++)
+        for (unsigned int i = 0; i < hand.size(); i++)
         {
             if (Card_less(hand[i], *lowest, trump))
             {
@@ -264,7 +265,7 @@ public:
     {
         Card *highest = &hand[0];
         int track = 0;
-        for (int i = 0; i < hand.size(); i++)
+        for (unsigned int i = 0; i < hand.size(); i++)
         {
             if (Card_less(*highest, hand[i], trump))
             {
@@ -287,7 +288,7 @@ public:
     //EFFECT Check whether there are trump cards in hand
     bool have_trump(const std::string &trump)
     {
-        for (int i = 0; i < hand.size(); i++)
+        for (unsigned int i = 0; i < hand.size(); i++)
         {
             if (hand[i].is_trump(trump))
                 return true;
@@ -297,7 +298,7 @@ public:
     //EFFECT Check whether there are cards of the leading suit in hand
     bool have_lead(const std::string &lead)
     {
-        for (int i = 0; i < hand.size(); i++)
+        for (unsigned int i = 0; i < hand.size(); i++)
         {
             if (hand[i].get_suit() == lead)
                 return true;
@@ -315,7 +316,7 @@ private:
     bool is_dealer, is_defender, is_leader;
 
 public:
-    Human_player::Human_player(const std::string &in_name) : name(in_name)
+    Human_player(const std::string &in_name) : name(in_name)
     {
         points = 0;
         tricks_won = 0;
@@ -328,7 +329,7 @@ public:
     {
         return name;
     }
-    int get_points()
+    const int &get_points() const
     {
         return points;
     }
@@ -336,7 +337,7 @@ public:
     {
         points = new_points;
     }
-    int calculate_points()
+    int calculate_points() const
     {
         if (is_defender)
         {
@@ -355,7 +356,7 @@ public:
                 return 1;
         }
     }
-    int get_tricks_won()
+    const int &get_tricks_won() const
     {
         return tricks_won;
     }
@@ -369,7 +370,7 @@ public:
         tricks_won++;
     }
 
-    bool check_dealer()
+    const bool &check_dealer() const
     {
         return is_dealer;
     }
@@ -377,7 +378,7 @@ public:
     {
         is_dealer = dealer;
     }
-    bool check_defender()
+    const bool &check_defender() const
     {
         return is_defender;
     }
@@ -385,11 +386,11 @@ public:
     {
         is_defender = defender;
     }
-    bool check_leader()
+    const bool &check_leader() const
     {
         return is_leader;
     }
-    void set_dealer(bool &leader)
+    void set_leader(bool &leader)
     {
         is_leader = leader;
     }
@@ -403,10 +404,11 @@ public:
                     int round, std::string &order_up_suit) const
     {
         assert(round <= 2);
-        std::sort(hand.begin(), hand.end());
+        std::vector<Card> hand_for_show = hand;
+        std::sort(hand_for_show.begin(), hand_for_show.end());
 
-        for (int i = 0; i < hand.size(); i++)
-            std::cout << hand[i] << std::endl;
+        for (unsigned int i = 0; i < hand.size(); i++)
+            std::cout << hand_for_show[i] << std::endl;
 
         std::string choice;
         std::cout << "Order up or pass?" << std::endl
@@ -431,7 +433,7 @@ public:
         add_card(upcard);
         std::sort(hand.begin(), hand.end());
 
-        for (int i = 0; i < hand.size(); i++)
+        for (unsigned int i = 0; i < hand.size(); i++)
             std::cout << i << ". " << hand[i] << std::endl;
 
         std::string choice;
@@ -442,11 +444,11 @@ public:
     Card lead_card(const std::string &trump)
     {
         assert(hand.size() != 0);
-        assert(check_suit(trump));
+        assert(player_check_suit(trump));
 
         std::sort(hand.begin(), hand.end());
 
-        for (int i = 0; i < hand.size(); i++)
+        for (unsigned int i = 0; i < hand.size(); i++)
             std::cout << i << ". " << hand[i] << std::endl;
         std::string choice;
         Card lead;
@@ -461,11 +463,11 @@ public:
     {
 
         assert(hand.size() != 0);
-        assert(check_suit(trump));
+        assert(player_check_suit(trump));
 
         std::sort(hand.begin(), hand.end());
 
-        for (int i = 0; i < hand.size(); i++)
+        for (unsigned int i = 0; i < hand.size(); i++)
             std::cout << i << ". " << hand[i] << std::endl;
         std::string choice;
         Card play;
@@ -490,7 +492,13 @@ Player *Player_factory(const std::string &name, const std::string &strategy)
     return nullptr;
 }
 
-bool check_rank(const std::string &rank_in)
+std::ostream &operator<<(std::ostream &os, const Player &p)
+{
+    os << p.get_name();
+    return os;
+}
+
+bool player_check_rank(const std::string &rank_in)
 {
     if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rank_in) !=
         (RANK_NAMES_BY_WEIGHT + NUM_RANKS))
@@ -498,7 +506,7 @@ bool check_rank(const std::string &rank_in)
     return false;
 }
 
-bool check_suit(const std::string &suit_in)
+bool player_check_suit(const std::string &suit_in)
 {
     if (find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, suit_in) !=
         (SUIT_NAMES_BY_WEIGHT + NUM_SUITS))

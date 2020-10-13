@@ -60,7 +60,8 @@ int main(int argc, char *argv[])
         }
         players.push_back(Player_factory(name, type));
     }
+    //Initialize the deck
+    Pack *deck = new Pack();
 
-   
     return 0;
 }
