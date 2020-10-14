@@ -57,8 +57,10 @@ public:
             if (num_trump >= 2)
             {
                 order_up_suit = suit_considered;
+                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl;
                 return true;
             }
+            std::cout << this->get_name() << " passes" << std::endl;
             return false;
         }
         //During round 2
@@ -71,6 +73,7 @@ public:
             if (is_dealer == true)
             {
                 screw_the_dealer(upcard, order_up_suit);
+                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl;
                 return true;
             }
 
@@ -85,12 +88,12 @@ public:
             if (num_next >= 1)
             {
                 order_up_suit = suit_considered;
+                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl;
                 return true;
             }
             return false;
         }
     }
-
     void add_and_discard(const Card &upcard)
     {
         assert(hand.size() != 0);
@@ -110,6 +113,7 @@ public:
         {
             lead = hand[hand.size() - 1];
             hand.pop_back();
+            std::cout << lead << " led by " << this->get_name() << std::endl;
             return lead;
         }
         //If there is trump card
@@ -126,6 +130,7 @@ public:
             {
                 hand = trumps;
                 lead = hand[find_highest(hand, trump)];
+                std::cout << lead << " led by " << this->get_name() << std::endl;
                 return lead;
             }
             //If some are not trump cards
@@ -135,6 +140,7 @@ public:
                 lead = hand[hand.size() - 1];
                 hand.pop_back();
                 hand.insert(hand.end(), trumps.begin(), trumps.end());
+                std::cout << lead << " led by " << this->get_name() << std::endl;
                 return lead;
             }
         }
@@ -151,6 +157,7 @@ public:
         {
             play = hand[find_lowest(hand, trump)];
             hand.erase(hand.begin() + find_lowest(hand, trump));
+            std::cout << play << " played by " << this->get_name() << std::endl;
             return play;
         }
         else
@@ -169,6 +176,7 @@ public:
             play = lead[find_highest(lead, trump)];
             lead.erase(lead.begin() + find_highest(lead, trump));
             hand.insert(hand.end(), lead.begin(), lead.end());
+            std::cout << play << " played by " << this->get_name() << std::endl;
             return play;
         }
     }
