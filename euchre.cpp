@@ -14,22 +14,302 @@
 
 using namespace std;
 
-static string filename, trump;
-bool shuffle;
-Player *dealer, *leader, *defender1, *defender2, *current_player, *winner_of_the_trick;
-static Player *players[4];
-static Card *middle[4];
-static int points[4] = {0}, tricks_won[4] = {0};
-static Pack *deck;
-Card *up_card, *lead_card;
+class Game
+{
+private:
+    bool shuffle;
+    Player *players[4];
+    Pack *deck;
+    int points_to_win;
+    Card *middle[4];
+    int points[4], tricks_won[4];
+
+    string filename, trump;
+    Player *dealer, *leader, *defender1, *defender2, *current_player, *winner_of_the_trick;
+    Card *middle[4];
+    int points[4], tricks_won[4];
+    Card *up_card, *lead_card;
+
+public:
+    //After checking that all arguments are valid
+    Game(Player *in_players[], Pack *in_deck, bool in_shuffle, int in_points_to_win)
+    {
+
+        for (int i = 0; i < 4; i++)
+        {
+            players[i] = in_players[i];
+            points[i] = 0;
+            tricks_won[i] = 0;
+        }
+        deck = in_deck;
+        shuffle = in_shuffle;
+        points_to_win = in_points_to_win;
+        dealer = players[0];
+        leader = players[1];
+    }
+
+    //Returns pointer to the next player in sequence
+    Player *next_player(Player *current)
+    {
+        if (&current_player - players == 4)
+            return players[0];
+        else
+            return *(&current_player + 1);
+    }
+    Player *teammate(Player *p)
+    {
+        return next_player(next_player(p));
+    }
+
+    //Shuffle the deck based on the option
+    void shuffle_deck(bool shuffle)
+    {
+        if (shuffle)
+            deck->shuffle();
+    }
+
+    //Deal cards to players
+    void deal_card()
+    {
+        current_player = next_player(dealer);
+        int deal_num = 3;
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < deal_num; j++)
+                current_player->add_card(deck->deal_one());
+
+            current_player = next_player(current_player);
+
+            if (deal_num == 3)
+                deal_num--;
+            else
+                deal_num++;
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < deal_num; j++)
+                current_player->add_card(deck->deal_one());
+
+            current_player = next_player(current_player);
+
+            if (deal_num == 3)
+                deal_num--;
+            else
+                deal_num++;
+        }
+    }
+
+    //Used for making trump
+    //Returns the trump suit
+    void order_up()
+    {
+
+        up_card = &(deck->deal_one());
+        cout << *up_card << " turned up" << endl;
+        bool result;
+
+        //Round 1
+        current_player = next_player(dealer);
+        do
+        {
+            result = current_player->make_trump(*up_card, false, 1, trump);
+            if (result == true)
+            {
+                dealer->add_and_discard(*up_card);
+                defender1 = next_player(current_player);
+                defender2 = next_player(next_player(defender1));
+            }
+            current_player = next_player(current_player);
+
+        } while (current_player != players[1]);
+
+        //Round 2
+        current_player = next_player(dealer);
+        do
+        {
+            result = current_player->make_trump(*up_card, false, 2, trump);
+            if (result == true)
+            {
+                defender1 = next_player(current_player);
+                defender2 = next_player(next_player(defender1));
+            }
+            current_player = next_player(current_player);
+
+        } while (current_player != players[1]);
+
+        defender1 = next_player(dealer);
+        defender2 = next_player(next_player(defender1));
+    }
+
+    void lead()
+    {
+        //Leader leads a card
+        lead_card = &(leader->lead_card(trump));
+    }
+    void play()
+    {
+
+        //Place the card in the same index as the player who plays it
+        middle[&leader - players] = lead_card;
+        //The rest follow
+        current_player = next_player(leader);
+        for (int i = 0; i < 3; i++)
+        {
+            if (i = &leader - players)
+                continue;
+
+            middle[&current_player - players] = &(current_player->play_card(*lead_card, trump));
+            current_player = next_player(current_player);
+        }
+    }
+
+    //Check who wins a trick by finding the greatest valued card and find who played that card
+    void who_win_the_trick()
+    {
+        Card *highest = middle[0];
+        int track = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            if (Card_less(*highest, *middle[i], *lead_card, trump))
+            {
+                highest = middle[i];
+                track = i;
+            }
+        }
+        //Set the new leader
+        leader = players[track];
+        dealer = next_player(dealer);
+        cout << leader->get_name() << " takes the trick" << endl;
+        win_a_trick(leader);
+    }
+
+    int get_points(Player *p)
+    {
+        return points[&p - players];
+    }
+    void win_points(Player *p, int new_point)
+    {
+        points[&p - players] += new_point;
+    }
+
+    int get_tricks_won(Player *p)
+    {
+        return tricks_won[&p - players];
+    }
+    void win_a_trick(Player *p)
+    {
+        tricks_won[&p - players]++;
+    }
+
+    void update_points()
+    {
+        int tricks_won_t1 = get_tricks_won(players[0]) + get_tricks_won(players[2]);
+        int tricks_won_t2 = get_tricks_won(players[1]) + get_tricks_won(players[3]);
+        if (tricks_won_t1 >= 3)
+        {
+            cout << players[0]->get_name() << " and " << players[2]->get_name() << " wins the hand" << endl;
+            //When Team one orders up
+            if (&defender1 != &players[0] && &defender2 != &players[2])
+            {
+                if (tricks_won_t1 == 5)
+                {
+                    cout << "A March!!!" << endl;
+                    win_points(players[0], 2);
+                    win_points(players[2], 2);
+                }
+                else
+                {
+                    win_points(players[0], 1);
+                    win_points(players[2], 1);
+                }
+            }
+            else
+            {
+                cout << "Euchred!!!" << endl;
+                win_points(players[0], 2);
+                win_points(players[2], 2);
+            }
+        }
+
+        else
+        {
+            cout << players[1]->get_name() << " and " << players[3]->get_name() << " wins the hand" << endl;
+            //When Team one orders up
+            if (&defender1 != &players[1] && &defender2 != &players[3])
+            {
+                if (tricks_won_t1 == 5)
+                {
+                    cout << "A March!!!" << endl;
+                    win_points(players[1], 2);
+                    win_points(players[3], 2);
+                }
+                else
+                {
+                    win_points(players[1], 1);
+                    win_points(players[3], 1);
+                }
+            }
+            else
+            {
+                cout << "Euchred!!!" << endl;
+                win_points(players[1], 2);
+                win_points(players[3], 2);
+            }
+        }
+    }
+
+    //Check whether there is a winner for the entire game, if there is, return the index of the winner. Else returns -1
+    int is_there_game_winner()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (points[i] >= points_to_win)
+                return i;
+        }
+        return -1;
+    }
+};
 
 int main(int argc, char *argv[])
 {
+    //Used to set up the Game instance
+    bool shuffle;
+    Player *players[4];
+    Pack *deck;
+    int points_to_win;
 
+    //Vars needed to run the game
+    string filename, trump;
+    Player *dealer, *leader, *defender1, *defender2, *current_player, *winner_of_the_trick;
+    Card *middle[4];
+    int points[4] = {0}, tricks_won[4] = {0};
+    Card *up_card, *lead_card;
+
+    for (int i = 0; i < argc; i++)
+        cout << argv[i] << " ";
+    cout << endl;
+    //Initialization
+
+    //Check parameters
     assert(argc == 12);
 
-    //Initialize the name of the file for the pack we use
-    string filename(argv[1]);
+    //Initialize the pack we use
+    string filename = argv[1];
+    ifstream in;
+    in.open(filename);
+    if (!in.is_open())
+    {
+        cout << "Error opening " << filename << endl;
+        return 1;
+    }
+
+    string rank, suit, junk;
+    while (in >> rank)
+    {
+        in >> junk;
+        in >> suit;
+    }
+    Pack *deck = new Pack(in);
 
     //Shuffle or not
     if (!strcmp(argv[2], "unshuffle") && !strcmp(argv[2], "shuffle"))
@@ -54,9 +334,9 @@ int main(int argc, char *argv[])
              << "NAME4 TYPE4" << endl;
         return 3;
     }
-    cout << "Points to win have been set to " << points_to_win << endl;
 
     //Initialize all the players
+    Player *players[4];
     for (int i = 4; i <= 10; i += 2)
 
     {
@@ -74,72 +354,52 @@ int main(int argc, char *argv[])
     cout << "Team 1: " << players[0]->get_name() << ", " << players[2]->get_name() << endl
          << "Team 2: " << players[1]->get_name() << ", " << players[3]->get_name() << endl;
 
+    Game *euchre = new Game(players, deck, shuffle, points_to_win);
+    //Initialization complete
+
     //Set the first dealer as player 0
     dealer = players[0];
-    int hand = 0;
+    int hand = 0, winner_seat = 0;
     do
     {
         cout << "Hand " << hand << endl
              << dealer << endl;
-        //Initialize, shuffle, and deal the deck
-        deck = new Pack();
-        shuffle_deck(deck, shuffle);
-        deal_card(players, deck, dealer);
 
         //Time to make trump and see who is the defender
-        up_card = &(deck->deal_one());
-        cout << *up_card << " turned up" << endl;
-        trump = order_up(players, dealer, defender1, defender2, up_card, trump);
-
-        //Five tricks starts here
-        leader = players[1];
+        euchre->order_up();
 
         for (int trick = 0; trick < 5; trick++)
         {
             //Leader leads a card
-            lead_card = &(leader->lead_card(trump));
-            //Place the card in the same index as the player who plays it
-            middle[&leader - players] = lead_card;
+            euchre->lead();
+
             //The rest follow
-            current_player = next_player(players, leader);
-            for (int i = 0; i < 3; i++)
-            {
-                if (i = &leader - players)
-                    continue;
-
-                middle[&current_player - players] = &(current_player->play_card(*lead_card, trump));
-                current_player = next_player(players, current_player);
-            }
+            euchre->play();
             //Determine who wins the trick
-            winner_of_the_trick = who_win_the_trick(players, middle, leader, lead_card, trump);
-            win_the_trick(players, winner_of_the_trick);
-            cout << winner_of_the_trick->get_name() << " takes the trick" << endl;
-
-            leader = winner_of_the_trick;
+            euchre->who_win_the_trick();
         }
-        update_points(players, points, tricks_won, dealer, defender1, defender2);
+        euchre->update_points();
 
         cout << players[0]->get_name() << " and " << players[2]
-             << " have " << get_points(players, players[0])
+             << " have " << euchre->get_points(players[0])
              << " points " << endl
              << players[1]->get_name() << " and "
-             << players[3] << " have " << get_points(players, players[1]) << endl;
+             << players[3] << " have " << euchre->get_points(players[1]) << endl;
 
-        dealer = next_player(players, dealer);
+        hand++;
 
-    } while (is_there_game_winner(points, points_to_win) == -1);
+        winner_seat = euchre->is_there_game_winner();
 
-    cout << players[is_there_game_winner(points, points_to_win)] << " and "
-         << players[is_there_game_winner(points, points_to_win) + 2] << " win!" << endl;
+    } while (winner_seat == -1);
 
-    for (int i = 0; i < 4; i++)
-    {
-        delete players[i];
-    }
+    cout << players[winner_seat] << " and "
+         << euchre->teammate(players[winner_seat]) << " win!" << endl;
+
+    delete euchre;
 
     return 0;
 }
-
+/*
 //Shuffle the deck based on the option
 void shuffle_deck(Pack *deck, bool shuffle)
 {
@@ -336,3 +596,4 @@ int is_there_game_winner(int points[], int points_to_win)
     }
     return -1;
 }
+*/
