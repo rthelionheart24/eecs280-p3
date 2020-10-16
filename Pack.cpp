@@ -12,7 +12,7 @@
 
 Pack::Pack()
 {
-    this->reset();
+    reset();
     for (int i = 0; i < NUM_SUITS; i++)
     {
         for (int j = 7; j < NUM_RANKS; j++)
@@ -21,12 +21,12 @@ Pack::Pack()
             cards[next++] = Card(RANK_NAMES_BY_WEIGHT[j], SUIT_NAMES_BY_WEIGHT[i]);
         }
     }
-    this->reset();
+    reset();
 }
 
 Pack::Pack(std::istream &pack_input)
 {
-    this->reset();
+    reset();
     std::string rank_in, suit_in, junk;
     while (pack_input >> rank_in)
     {
@@ -34,7 +34,7 @@ Pack::Pack(std::istream &pack_input)
         pack_input >> suit_in;
         cards[next++] = Card(rank_in, suit_in);
     }
-    this->reset();
+    reset();
 }
 
 Card Pack::deal_one()
@@ -45,11 +45,12 @@ Card Pack::deal_one()
 
 void Pack::reset()
 {
-    this->next = 0;
+    next = 0;
 }
 
 void Pack::shuffle()
 {
+    reset();
     const int length = 24;
 
     Card p1[length / 2] = {};
@@ -60,9 +61,9 @@ void Pack::shuffle()
         for (int j = 0; j < length; j++)
         {
             if (j < length / 2)
-                p1[j] = this->deal_one();
+                p1[j] = deal_one();
             else
-                p2[j - 12] = this->deal_one();
+                p2[j - 12] = deal_one();
         }
         this->reset();
         int track1 = 0, track2 = 0;
@@ -73,13 +74,15 @@ void Pack::shuffle()
             else
                 cards[next++] = p1[track1++];
         }
-        this->reset();
+        reset();
     }
+
+    reset();
 }
 
 bool Pack::empty() const
 {
-    if (this->next == 24)
+    if (next == 24)
         return true;
     return false;
 }

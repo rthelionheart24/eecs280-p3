@@ -102,11 +102,11 @@ bool Card::is_trump(const std::string &trump) const
 bool operator<(const Card &lhs, const Card &rhs)
 {
 
-    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_suit()) <
-        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_suit()))
+    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) <
+        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
         return true;
-    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_suit()) >
-             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_suit()))
+    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) >
+             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
         return false;
     else
     {
@@ -120,11 +120,11 @@ bool operator<(const Card &lhs, const Card &rhs)
 bool operator>(const Card &lhs, const Card &rhs)
 {
 
-    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_suit()) >
-        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_suit()))
+    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) >
+        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
         return true;
-    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_suit()) <
-             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_suit()))
+    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) <
+             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
         return false;
     else
     {

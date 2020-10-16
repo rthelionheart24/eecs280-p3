@@ -57,7 +57,8 @@ public:
             if (num_trump >= 2)
             {
                 order_up_suit = suit_considered;
-                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl;
+                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl
+                          << std::endl;
                 return true;
             }
             std::cout << this->get_name() << " passes" << std::endl;
@@ -73,7 +74,8 @@ public:
             if (is_dealer == true)
             {
                 screw_the_dealer(upcard, order_up_suit);
-                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl;
+                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl
+                          << std::endl;
                 return true;
             }
 
@@ -88,7 +90,8 @@ public:
             if (num_next >= 1)
             {
                 order_up_suit = suit_considered;
-                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl;
+                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl
+                          << std::endl;
                 return true;
             }
             return false;
@@ -107,11 +110,10 @@ public:
         assert(hand.size() != 0);
         assert(player_check_suit(trump));
         std::sort(hand.begin(), hand.end());
-        Card lead;
         //If there is no trump card, the last element after sort is the greatest
         if (!have_trump(trump))
         {
-            lead = hand[hand.size() - 1];
+            Card lead = hand[hand.size() - 1];
             hand.pop_back();
             std::cout << lead << " led by " << this->get_name() << std::endl;
             return lead;
@@ -119,27 +121,32 @@ public:
         //If there is trump card
         else
         {
-            std::vector<Card> trumps;
+            bool all_trump = true;
             for (unsigned int i = 0; i < hand.size(); i++)
             {
-                if (hand[i].is_trump(trump))
-                    trumps.push_back(hand[i]);
+                if (!hand[i].is_trump(trump))
+                    all_trump = false;
             }
-            //If all are trump cards
-            if (hand.size() == trumps.size())
+            //If all are trump cards. the last card is the greatest
+            if (all_trump == true)
             {
-                hand = trumps;
-                lead = hand[find_highest(hand, trump)];
+                Card lead = hand[find_highest(hand, trump)];
+                hand.erase(find(hand.begin(), hand.end(), lead));
                 std::cout << lead << " led by " << this->get_name() << std::endl;
                 return lead;
             }
             //If some are not trump cards
             else
             {
-                std::sort(hand.begin(), hand.end());
-                lead = hand[hand.size() - 1];
-                hand.pop_back();
-                hand.insert(hand.end(), trumps.begin(), trumps.end());
+                std::vector<Card> normal;
+                for (unsigned int i = 0; i < hand.size(); i++)
+                {
+                    if (!hand[i].is_trump(trump))
+                        normal.push_back(hand[i]);
+                }
+
+                Card lead = normal[find_highest(normal, trump)];
+                hand.erase(find(hand.begin(), hand.end(), lead));
                 std::cout << lead << " led by " << this->get_name() << std::endl;
                 return lead;
             }
@@ -152,30 +159,27 @@ public:
         assert(hand.size() != 0);
         assert(player_check_suit(trump));
         std::string lead_suit = led_card.get_suit();
-        Card play;
-        if (!have_lead(lead_suit))
+        //If can't follow suit
+        if (!have_lead(lead_suit, trump))
         {
-            play = hand[find_lowest(hand, trump)];
+            Card play = hand[find_lowest(hand, trump)];
             hand.erase(hand.begin() + find_lowest(hand, trump));
             std::cout << play << " played by " << this->get_name() << std::endl;
             return play;
         }
+        //If they can follow suit
         else
         {
             //A seperate vector for cards with the leading suit
-            std::vector<Card> lead;
+            std::vector<Card> lead_suit_cards;
             for (unsigned int i = 0; i < hand.size(); i++)
             {
-                if (hand[i].get_suit() == led_card.get_suit())
-                {
-                    lead.push_back(hand[i]);
-                    hand.erase(hand.begin() + i);
-                }
+                if (hand[i].get_suit(trump) == led_card.get_suit())
+                    lead_suit_cards.push_back(hand[i]);
             }
 
-            play = lead[find_highest(lead, trump)];
-            lead.erase(lead.begin() + find_highest(lead, trump));
-            hand.insert(hand.end(), lead.begin(), lead.end());
+            Card play = lead_suit_cards[find_highest(lead_suit_cards, trump)];
+            hand.erase(find(hand.begin(), hand.end(), play));
             std::cout << play << " played by " << this->get_name() << std::endl;
             return play;
         }
@@ -183,13 +187,13 @@ public:
 
     int find_lowest(std::vector<Card> deck, const std::string &trump)
     {
-        Card *lowest = &hand[0];
+        Card *lowest = &deck[0];
         int track = 0;
-        for (unsigned int i = 0; i < hand.size(); i++)
+        for (unsigned int i = 0; i < deck.size(); i++)
         {
-            if (Card_less(hand[i], *lowest, trump))
+            if (Card_less(deck[i], *lowest, trump))
             {
-                lowest = &hand[i];
+                lowest = &deck[i];
                 track = i;
             }
         }
@@ -199,19 +203,25 @@ public:
 
     int find_highest(std::vector<Card> deck, const std::string &trump)
     {
-        Card *highest = &hand[0];
+        Card *highest = &deck[0];
         int track = 0;
-        for (unsigned int i = 0; i < hand.size(); i++)
+        for (unsigned int i = 0; i < deck.size(); i++)
         {
-            if (Card_less(*highest, hand[i], trump))
+            if (Card_less(*highest, deck[i], trump))
             {
-                highest = &hand[i];
+                highest = &deck[i];
                 track = i;
             }
         }
 
         return track;
     }
+
+    void copy_card(Card *c1, const Card c2)
+    {
+        c1 = new Card(c2.get_rank(), c2.get_suit());
+    }
+
     //Additional functions belonging to Simple_player
 
     //REQUIRES No one to order up
@@ -232,11 +242,11 @@ public:
         return false;
     }
     //EFFECT Check whether there are cards of the leading suit in hand
-    bool have_lead(const std::string &lead)
+    bool have_lead(const std::string &lead, const std::string &trump)
     {
         for (unsigned int i = 0; i < hand.size(); i++)
         {
-            if (hand[i].get_suit() == lead)
+            if (hand[i].get_suit(trump) == lead)
                 return true;
         }
         return false;
