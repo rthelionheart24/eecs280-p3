@@ -135,9 +135,9 @@ TEST(test_suit_next)
 
 TEST(test_card_less)
 {
-    string c = "Spades";
-    string b = "Spades";
-    string a = "Hearts";
+    Card c("Two", "Spades");
+    Card b("Jack", "Spades");
+    Card a("Two", "Hearts");
     ASSERT_EQUAL(Card_less(a, b, "Hearts"), false);
     ASSERT_EQUAL(Card_less(c, b, "Hearts"), true);
     ASSERT_EQUAL(Card_less(a, c, "Hearts"), false);
@@ -145,9 +145,9 @@ TEST(test_card_less)
 
 TEST(test_card_less2)
 {
-    string c = "Spades";
-    string b = "Spades";
-    string a = "Hearts";
+    Card c("Two", "Spades");
+    Card b("Jack", "Spades");
+    Card a("Two", "Hearts");
     ASSERT_EQUAL(Card_less(a, b, a, "Hearts"), false);
     ASSERT_EQUAL(Card_less(c, b, a, "Hearts"), true);
     ASSERT_EQUAL(Card_less(a, c, a, "Hearts"), false);
