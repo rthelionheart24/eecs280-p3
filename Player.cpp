@@ -94,6 +94,7 @@ public:
                           << std::endl;
                 return true;
             }
+            std::cout << this->get_name() << " passes" << std::endl;
             return false;
         }
     }
@@ -110,6 +111,7 @@ public:
         assert(hand.size() != 0);
         assert(player_check_suit(trump));
         std::sort(hand.begin(), hand.end());
+
         //If there is no trump card, the last element after sort is the greatest
         if (!have_trump(trump))
         {
@@ -138,15 +140,20 @@ public:
             //If some are not trump cards
             else
             {
-                std::vector<Card> normal;
+                Card lead("Two", Suit_next(trump));
+                int track = 0;
                 for (unsigned int i = 0; i < hand.size(); i++)
                 {
                     if (!hand[i].is_trump(trump))
-                        normal.push_back(hand[i]);
+                    {
+                        if (Card_less(lead, hand[i], trump) || hand[i] == lead)
+                        {
+                            lead = hand[i];
+                            track = i;
+                        }
+                    }
                 }
-
-                Card lead = normal[find_highest(normal, trump)];
-                hand.erase(find(hand.begin(), hand.end(), lead));
+                hand.erase(hand.begin() + track);
                 std::cout << lead << " led by " << this->get_name() << std::endl;
                 return lead;
             }
@@ -158,7 +165,7 @@ public:
 
         assert(hand.size() != 0);
         assert(player_check_suit(trump));
-        std::string lead_suit = led_card.get_suit();
+        std::string lead_suit = led_card.get_suit(trump);
         //If can't follow suit
         if (!have_lead(lead_suit, trump))
         {
@@ -170,16 +177,20 @@ public:
         //If they can follow suit
         else
         {
-            //A seperate vector for cards with the leading suit
-            std::vector<Card> lead_suit_cards;
+            Card play("Two", Suit_next(trump));
+            int track = 0;
             for (unsigned int i = 0; i < hand.size(); i++)
             {
-                if (hand[i].get_suit(trump) == led_card.get_suit())
-                    lead_suit_cards.push_back(hand[i]);
+                if (hand[i].get_suit(trump) == lead_suit)
+                {
+                    if (Card_less(play, hand[i], led_card, trump) || hand[i] == play)
+                    {
+                        play = hand[i];
+                        track = i;
+                    }
+                }
             }
-
-            Card play = lead_suit_cards[find_highest(lead_suit_cards, trump)];
-            hand.erase(find(hand.begin(), hand.end(), play));
+            hand.erase(hand.begin() + track);
             std::cout << play << " played by " << this->get_name() << std::endl;
             return play;
         }
@@ -215,11 +226,6 @@ public:
         }
 
         return track;
-    }
-
-    void copy_card(Card *c1, const Card c2)
-    {
-        c1 = new Card(c2.get_rank(), c2.get_suit());
     }
 
     //Additional functions belonging to Simple_player
@@ -282,20 +288,22 @@ public:
         std::sort(hand_for_show.begin(), hand_for_show.end());
 
         for (unsigned int i = 0; i < hand.size(); i++)
-            std::cout << hand_for_show[i] << std::endl;
+            std::cout << "Human player " << get_name() << "'s hand: [" << i << "] "
+                      << hand_for_show[i] << std::endl;
 
         std::string choice;
-        std::cout << "Order up or pass?" << std::endl
-                  << "Spades\n"
-                  << "Hearts\n"
-                  << "Clubs\n"
-                  << "Diamonds\n"
-                  << "pass" << std::endl;
+        std::cout << "Human player " << get_name() << ", please enter a suit, or \"pass\":" << std::endl;
+
         std::cin >> choice;
         if (choice == "pass")
+        {
+            std::cout << get_name() << " passes" << std::endl;
             return false;
+        }
         else
         {
+            std::cout << get_name() << " orders up " << choice << std::endl
+                      << std::endl;
             order_up_suit = choice;
             return true;
         }
@@ -304,16 +312,22 @@ public:
     void add_and_discard(const Card &upcard)
     {
         assert(hand.size() != 0);
-        add_card(upcard);
         std::sort(hand.begin(), hand.end());
+        hand.push_back(upcard);
 
-        for (unsigned int i = 0; i < hand.size(); i++)
-            std::cout << i << ". " << hand[i] << std::endl;
+        for (unsigned int i = 0; i < 5; i++)
+            std::cout << "Human player " << get_name() << "'s hand: [" << i << "] "
+                      << hand[i] << std::endl;
+        std::cout << "Discard upcard: [-1]" << std::endl;
 
         std::string choice;
-        std::cout << "Which one do you want to discard?\n";
+        std::cout << "Human player " << get_name() << ", please select a card to discard:" << std::endl
+                  << std::endl;
         std::cin >> choice;
-        hand.erase(hand.begin() + stoi(choice));
+        if (choice == "-1")
+            hand.pop_back();
+        else
+            hand.erase(hand.begin() + stoi(choice));
     }
     Card lead_card(const std::string &trump)
     {
@@ -323,13 +337,17 @@ public:
         std::sort(hand.begin(), hand.end());
 
         for (unsigned int i = 0; i < hand.size(); i++)
-            std::cout << i << ". " << hand[i] << std::endl;
+            std::cout << "Human player " << get_name() << "'s hand: [" << i << "] "
+                      << hand[i] << std::endl;
         std::string choice;
         Card lead;
-        std::cout << "Which one do you want lead?\n";
+        std::cout << "Human player " << get_name() << ", please select a card:\n";
         std::cin >> choice;
         lead = hand[stoi(choice)];
         hand.erase(hand.begin() + stoi(choice));
+
+        std::cout << lead << " led by " << get_name() << std::endl;
+
         return lead;
     }
 
@@ -342,13 +360,15 @@ public:
         std::sort(hand.begin(), hand.end());
 
         for (unsigned int i = 0; i < hand.size(); i++)
-            std::cout << i << ". " << hand[i] << std::endl;
+            std::cout << "Human player " << get_name() << "'s hand: [" << i << "] "
+                      << hand[i] << std::endl;
         std::string choice;
         Card play;
-        std::cout << "Which one do you want play?\n";
+        std::cout << "Human player " << get_name() << ", please select a card:\n";
         std::cin >> choice;
         play = hand[stoi(choice)];
         hand.erase(hand.begin() + stoi(choice));
+        std::cout << play << " played by " << get_name() << std::endl;
         return play;
     }
 };

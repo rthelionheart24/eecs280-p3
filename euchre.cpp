@@ -43,7 +43,6 @@ public:
         shuffle = in_shuffle;
         points_to_win = in_points_to_win;
         dealer = players[0];
-        leader = players[1];
     }
 
     Player *get_dealer()
@@ -74,9 +73,20 @@ public:
         return next_player(next_player(p));
     }
 
+    Player *set_dealer()
+    {
+        return next_player(dealer);
+    }
+
+    void first_round_leader()
+    {
+        leader = next_player(dealer);
+    }
+
     //Shuffle the deck based on the option
     void shuffle_deck()
     {
+        deck->reset();
         if (shuffle)
             deck->shuffle();
     }
@@ -129,7 +139,7 @@ public:
 
         //Round 1
         current_player = next_player(dealer);
-        do
+        for (int i = 0; i < 4; i++)
         {
             result = current_player->make_trump(up_card, false, 1, trump);
             if (result == true)
@@ -140,12 +150,11 @@ public:
                 return 1;
             }
             current_player = next_player(current_player);
-
-        } while (current_player != players[1]);
+        }
 
         //Round 2
         current_player = next_player(dealer);
-        do
+        for (int i = 0; i < 3; i++)
         {
             result = current_player->make_trump(up_card, false, 2, trump);
             if (result == true)
@@ -155,9 +164,9 @@ public:
                 return 2;
             }
             current_player = next_player(current_player);
+        }
 
-        } while (current_player != players[1]);
-
+        current_player->make_trump(up_card, true, 2, trump);
         defender1 = next_player(dealer);
         defender2 = next_player(next_player(defender1));
         return 2;
@@ -258,7 +267,7 @@ public:
             //When Team one orders up
             if (defender1 != players[1] && defender1 != players[3])
             {
-                if (tricks_won_t1 == 5)
+                if (tricks_won_t2 == 5)
                 {
                     cout << "march!" << endl;
                     win_points(players[1], 2);
@@ -373,6 +382,9 @@ int main(int argc, char *argv[])
         cout << "Hand " << hand << endl
              << *euchre->get_dealer() << " deals" << endl;
 
+        if (hand > 0)
+            euchre->set_dealer();
+
         euchre->shuffle_deck();
 
         euchre->deal_card();
@@ -381,6 +393,8 @@ int main(int argc, char *argv[])
 
         for (int trick = 0; trick < 5; trick++)
         {
+            if (trick == 0)
+                euchre->first_round_leader();
             //Leader leads a card
             euchre->lead();
             //The rest follow

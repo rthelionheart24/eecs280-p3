@@ -60,8 +60,7 @@ std::string Card::get_suit() const
 std::string Card::get_suit(const std::string &trump) const
 {
     assert(check_suit(trump));
-    if (this->get_suit() == trump ||
-        (this->get_rank() == RANK_JACK && this->get_suit() == Suit_next(trump)))
+    if (this->is_left_bower(trump))
         return trump;
     return this->get_suit();
 }
