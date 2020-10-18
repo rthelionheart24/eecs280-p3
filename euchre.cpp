@@ -25,7 +25,7 @@ private:
     int points[4], tricks_won[4];
 
     string trump;
-    Player *dealer, *leader, *defender1, *defender2, *current_player, *winner_of_the_trick;
+    Player *dealer, *leader, *defender1, *defender2, *current_player;
     Card up_card, lead_card;
 
 public:
