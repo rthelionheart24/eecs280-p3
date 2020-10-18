@@ -47,7 +47,7 @@ TEST(test_make_trump)
 
   Card nine_hearts(Card::RANK_NINE, Card::SUIT_HEARTS);
   Card nine_spades(Card::RANK_NINE, Card::SUIT_SPADES);
-  string trump = Card::SUIT_CLUBS;
+  string trump = Card::SUIT_HEARTS;
 
   bool orderup = bob->make_trump(
       nine_hearts, //upcard
@@ -55,8 +55,10 @@ TEST(test_make_trump)
       1,           //first round
       trump        //suit ordered up (if any)
   );
+
   ASSERT_FALSE(orderup);
-  ASSERT_EQUAL(trump, Card::SUIT_CLUBS);
+  ASSERT_EQUAL(trump, Card::SUIT_HEARTS);
+  orderup = false;
 
   orderup = bob->make_trump(
       nine_spades, //upcard
@@ -64,8 +66,10 @@ TEST(test_make_trump)
       2,           //first round
       trump        //suit ordered up (if any)
   );
+
   ASSERT_TRUE(orderup);
   ASSERT_EQUAL(trump, Card::SUIT_CLUBS);
+  orderup = false;
 
   orderup = bob->make_trump(
       nine_spades, //upcard
@@ -73,8 +77,10 @@ TEST(test_make_trump)
       1,           //first round
       trump        //suit ordered up (if any)
   );
+
   ASSERT_TRUE(orderup);
   ASSERT_EQUAL(trump, Card::SUIT_SPADES);
+  orderup = false;
 
   orderup = bob->make_trump(
       nine_hearts, //upcard
@@ -82,6 +88,7 @@ TEST(test_make_trump)
       2,           //first round
       trump        //suit ordered up (if any)
   );
+
   ASSERT_TRUE(orderup);
   ASSERT_EQUAL(trump, Card::SUIT_DIAMONDS);
 

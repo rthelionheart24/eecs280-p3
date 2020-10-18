@@ -117,8 +117,8 @@ public:
         {
             Card lead = hand[hand.size() - 1];
             hand.pop_back();
-            std::cout << lead << " led by "
-                      << this->get_name() << std::endl;
+            // std::cout << lead << " led by "
+            //           << this->get_name() << std::endl;
             return lead;
         }
         //If there is trump card
@@ -134,8 +134,8 @@ public:
         {
             Card lead = hand[find_highest(hand, trump)];
             hand.erase(find(hand.begin(), hand.end(), lead));
-            std::cout << lead << " led by "
-                      << this->get_name() << std::endl;
+            // std::cout << lead << " led by "
+            //           << this->get_name() << std::endl;
             return lead;
         }
         //If some are not trump cards
@@ -153,8 +153,8 @@ public:
             }
         }
         hand.erase(hand.begin() + track);
-        std::cout << lead << " led by "
-                  << this->get_name() << std::endl;
+        // std::cout << lead << " led by "
+        //           << this->get_name() << std::endl;
         return lead;
     }
 
@@ -169,8 +169,8 @@ public:
         {
             Card play = hand[find_lowest(hand, trump)];
             hand.erase(hand.begin() + find_lowest(hand, trump));
-            std::cout << play << " played by "
-                      << this->get_name() << std::endl;
+            // std::cout << play << " played by "
+            //           << this->get_name() << std::endl;
             return play;
         }
         //If they can follow suit
@@ -188,8 +188,8 @@ public:
             }
         }
         hand.erase(hand.begin() + track);
-        std::cout << play << " played by "
-                  << this->get_name() << std::endl;
+        // std::cout << play << " played by "
+        //           << this->get_name() << std::endl;
         return play;
     }
 
@@ -231,7 +231,7 @@ public:
     //EFFECT Forces the dealer to order up the suit
     void screw_the_dealer(const Card &upcard, std::string &order_up_suit) const
     {
-        std::cout << "Screw the dealer!!!" << std::endl;
+        // std::cout << "Screw the dealer!!!" << std::endl;
         order_up_suit = Suit_next(upcard.get_suit());
     }
     //EFFECT Check whether there are trump cards in hand
@@ -344,7 +344,7 @@ public:
         lead = hand[stoi(choice)];
         hand.erase(hand.begin() + stoi(choice));
 
-        std::cout << lead << " led by " << get_name() << std::endl;
+        // std::cout << lead << " led by " << get_name() << std::endl;
 
         return lead;
     }
@@ -367,7 +367,7 @@ public:
         std::cin >> choice;
         play = hand[stoi(choice)];
         hand.erase(hand.begin() + stoi(choice));
-        std::cout << play << " played by " << get_name() << std::endl;
+        // std::cout << play << " played by " << get_name() << std::endl;
         return play;
     }
 };

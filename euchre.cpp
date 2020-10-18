@@ -182,7 +182,8 @@ public:
     {
         //Leader leads a card
         lead_card = leader->lead_card(trump);
-
+        std::cout << lead_card << " led by "
+                  << this->leader->get_name() << std::endl;
         //Place the card in the same index as the player who plays it
         middle[seat_of(leader)] = lead_card;
     }
@@ -191,9 +192,13 @@ public:
 
         //The rest follow
         current_player = next_player(leader);
+        Card play_card;
         for (int i = 0; i < 3; i++)
         {
-            middle[seat_of(current_player)] = current_player->play_card(lead_card, trump);
+            play_card = current_player->play_card(lead_card, trump);
+            middle[seat_of(current_player)] = play_card;
+            std::cout << play_card << " played by "
+                      << current_player->get_name() << std::endl;
             current_player = next_player(current_player);
         }
     }
