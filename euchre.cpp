@@ -144,11 +144,14 @@ public:
             result = current_player->make_trump(up_card, false, 1, trump);
             if (result == true)
             {
+                std::cout << current_player->get_name() << " orders up "
+                          << trump << std::endl;
                 dealer->add_and_discard(up_card);
                 defender1 = next_player(current_player);
                 defender2 = next_player(next_player(defender1));
                 return 1;
             }
+            std::cout << current_player->get_name() << " passes" << std::endl;
             current_player = next_player(current_player);
         }
 
@@ -159,10 +162,13 @@ public:
             result = current_player->make_trump(up_card, false, 2, trump);
             if (result == true)
             {
+                std::cout << current_player->get_name() << " orders up "
+                          << trump << std::endl;
                 defender1 = next_player(current_player);
                 defender2 = next_player(next_player(defender1));
                 return 2;
             }
+            std::cout << current_player->get_name() << " passes" << std::endl;
             current_player = next_player(current_player);
         }
 
@@ -309,12 +315,10 @@ public:
     }
 };
 
-int check_args(int argc, char *argv[], bool &shuffle,
-               Player *players[],
-               Pack *deck,
-               int &points_to_win);
+int check_args(int argc, char *argv[]);
 void print_error();
 void game_summary(Game *euchre, Player *players[]);
+void clean_up(Player *players[], Pack *deck, Game *euchre);
 
 int main(int argc, char *argv[])
 {
@@ -322,19 +326,35 @@ int main(int argc, char *argv[])
     //Used to set up the Game instance
     bool shuffle;
     Player *players[4];
-    Pack *deck = new Pack();
+    Pack *deck;
     int points_to_win, check;
 
-    for (int i = 0; i < argc; i++)
-    {
-        cout << argv[i] << " ";
-    }
-    cout << endl;
-
-    check = check_args(argc, argv, shuffle, players, deck, points_to_win);
+    check = check_args(argc, argv);
 
     if (check != 0)
         return check;
+
+    //Initialize the pack we use
+    string filename = argv[1];
+    ifstream in;
+    in.open(filename);
+    deck = new Pack(in);
+
+    //Shuffle or not
+    shuffle = true;
+    if (strcmp(argv[2], "noshuffle") == 0)
+        shuffle = false;
+
+    //Initialize the points to win
+    points_to_win = stoi(argv[3]);
+
+    //Initialize all the players
+    for (int i = 4; i <= 10; i += 2)
+    {
+        string name(argv[i]), type(argv[i + 1]);
+
+        players[i / 2 - 2] = Player_factory(name, type);
+    }
 
     Game *euchre = new Game(players, deck, shuffle, points_to_win);
     //Initialization complete
@@ -372,16 +392,20 @@ int main(int argc, char *argv[])
 
     cout << *players[winner_seat] << " and "
          << *euchre->teammate(players[winner_seat]) << " win!" << endl;
-    delete euchre;
+
+    clean_up(players, deck, euchre);
 
     return 0;
 }
 
-int check_args(int argc, char *argv[], bool &shuffle,
-               Player *players[],
-               Pack *deck,
-               int &points_to_win)
+int check_args(int argc, char *argv[])
 {
+    for (int i = 0; i < argc; i++)
+    {
+        cout << argv[i] << " ";
+    }
+    cout << endl;
+
     assert(argc == 12);
 
     //Initialize the pack we use
@@ -393,7 +417,6 @@ int check_args(int argc, char *argv[], bool &shuffle,
         cout << "Error opening " << filename << endl;
         return 1;
     }
-    deck = new Pack(in);
 
     //Shuffle or not
     if (!strcmp(argv[2], "noshuffle") && !strcmp(argv[2], "shuffle"))
@@ -401,13 +424,9 @@ int check_args(int argc, char *argv[], bool &shuffle,
         print_error();
         return 2;
     }
-    shuffle = true;
-    if (strcmp(argv[2], "noshuffle") == 0)
-        shuffle = false;
 
     //Initialize the points to win
-    points_to_win = stoi(argv[3]);
-    if (points_to_win > 100 || points_to_win < 1)
+    if (stoi(argv[3]) > 100 || stoi(argv[3]) < 1)
     {
 
         print_error();
@@ -425,7 +444,6 @@ int check_args(int argc, char *argv[], bool &shuffle,
             print_error();
             return 4;
         }
-        players[i / 2 - 2] = Player_factory(name, type);
     }
 
     return 0;
@@ -447,4 +465,14 @@ void game_summary(Game *euchre, Player *players[])
          << players[3]->get_name() << " have " << euchre->get_points(players[1])
          << " points" << endl
          << endl;
+}
+
+void clean_up(Player *players[], Pack *deck, Game *euchre)
+{
+
+    for (int i = 0; i < 4; i++)
+        delete players[i];
+
+    delete deck;
+    delete euchre;
 }

@@ -57,11 +57,11 @@ public:
             if (num_trump >= 2)
             {
                 order_up_suit = suit_considered;
-                std::cout << this->get_name() << " orders up "
-                          << order_up_suit << std::endl;
+                // std::cout << this->get_name() << " orders up "
+                //         << order_up_suit << std::endl;
                 return true;
             }
-            std::cout << this->get_name() << " passes" << std::endl;
+            //std::cout << this->get_name() << " passes" << std::endl;
             return false;
         }
         //During round 2
@@ -74,8 +74,8 @@ public:
             if (is_dealer == true)
             {
                 screw_the_dealer(upcard, order_up_suit);
-                std::cout << this->get_name() << " orders up "
-                          << order_up_suit << std::endl;
+                // std::cout << this->get_name() << " orders up "
+                //           << order_up_suit << std::endl;
                 return true;
             }
 
@@ -90,11 +90,11 @@ public:
             if (num_next >= 1)
             {
                 order_up_suit = suit_considered;
-                std::cout << this->get_name() << " orders up "
-                          << order_up_suit << std::endl;
+                // std::cout << this->get_name() << " orders up "
+                //           << order_up_suit << std::endl;
                 return true;
             }
-            std::cout << this->get_name() << " passes" << std::endl;
+            // std::cout << this->get_name() << " passes" << std::endl;
             return false;
         }
     }
@@ -295,12 +295,12 @@ public:
         std::cin >> choice;
         if (choice == "pass")
         {
-            std::cout << get_name() << " passes" << std::endl;
+            // std::cout << get_name() << " passes" << std::endl;
             return false;
         }
         else
         {
-            std::cout << get_name() << " orders up " << choice << std::endl;
+            // std::cout << get_name() << " orders up " << choice << std::endl;
             order_up_suit = choice;
             return true;
         }
