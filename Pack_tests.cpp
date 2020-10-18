@@ -15,35 +15,37 @@ TEST(test_pack_default_ctor)
     Card *third = &pack->deal_one();
     Card *fourth = &pack->deal_one();
     ASSERT_TRUE(Card::RANK_NINE == first->get_rank() && Card::SUIT_SPADES == first->get_suit());
-    ASSERT_EQUAL()
+    ASSERT_TRUE(Card::RANK_NINE == second->get_rank() && Card::SUIT_HEARTS == second->get_suit());
+    ASSERT_TRUE(Card::RANK_NINE == third->get_rank() && Card::SUIT_CLUBS == third->get_suit());
+    ASSERT_TRUE(Card::RANK_NINE == fourth->get_rank() && Card::SUIT_DIAMONDS == fourth->get_suit());
 }
 
 TEST(test_deal_one_simple)
 {
     Pack *pack = new Pack();
-    Card *first = new Card("9", "Spades");
-    Card *second = new Card("9", "Hearts");
+    Card *first = new Card("Nine", "Spades");
+    Card *second = new Card("Nine", "Hearts");
     ASSERT_TRUE(pack->deal_one() == *first);
     ASSERT_TRUE(pack->deal_one() == *second);
 }
 //这个reset（）不太好测，所有其他fuction都会用reset（），应该没啥大问题
-/*
-TEST(test_reset)
-{
-    Pack *pack = new Pack();
-    pack->deal_one();
-    Card *first = &(pack->deal_one());
-    pack->reset();
-    ASSERT_EQUAL();
-}
-*/
+
+// TEST(test_reset)
+// {
+//     Pack *pack = new Pack();
+//     pack->deal_one();
+//     Card *first = &(pack->deal_one());
+//     pack->reset();
+//     ASSERT_EQUAL();
+// }
+
 TEST(test_shuffle_simple)
 {
     Pack *pack = new Pack();
     pack->shuffle();
-    Card *first = new Card("Q", "Spades");
-    Card *second = new Card("9", "Spades");
-    ASSERT_TRUE(*first==pack->deal_one());
+    Card *first = new Card("Queen", "Spades");
+    Card *second = new Card("Nine", "Spades");
+    ASSERT_TRUE(*first == pack->deal_one());
     ASSERT_TRUE(*second == pack->deal_one());
 }
 
