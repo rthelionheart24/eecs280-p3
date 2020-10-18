@@ -128,7 +128,7 @@ bool operator>(const Card &lhs, const Card &rhs)
     else
     {
 
-        if (find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, lhs.get_suit()) <
+        if (find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, lhs.get_suit()) >
             find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, rhs.get_suit()))
             return true;
         return false;

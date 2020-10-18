@@ -15,20 +15,23 @@ TEST(test_card_ctor)
 
 TEST(test_card_get_rank)
 {
-    Card c("Two", "Spades");
+    Card c(Card::RANK_TWO, Card::SUIT_SPADES);
     ASSERT_EQUAL(c.get_rank(), "Two");
 }
 TEST(test_card_get_suit)
 {
-    Card c("Two", "Spades");
+    Card c(Card::RANK_TWO, Card::SUIT_SPADES);
     ASSERT_EQUAL(c.get_suit(), "Spades");
 }
 
 //question
 TEST(test_card_get_suit_trump)
 {
-    Card c("Two", "Spades");
+    Card c(Card::RANK_TWO, Card::SUIT_SPADES);
     ASSERT_EQUAL(c.get_suit(), "Spades");
+
+    Card d(Card::RANK_JACK, Card::SUIT_CLUBS);
+    ASSERT_EQUAL(d.get_suit(Card::SUIT_SPADES), "Spades");
 }
 
 TEST(test_is_face)
@@ -36,7 +39,7 @@ TEST(test_is_face)
     Card c("Two", "Spades");
     ASSERT_EQUAL(c.is_face(), false);
     Card b("Jack", "Spades");
-    ASSERT_EQUAL(c.is_face(), true);
+    ASSERT_EQUAL(b.is_face(), true);
 }
 
 TEST(test_is_trump)
@@ -79,7 +82,7 @@ TEST(test_is_left_bower)
     string x = "Spades";
     ASSERT_EQUAL(e.is_left_bower(x), true);
     ASSERT_EQUAL(d.is_left_bower(x), false);
-    ASSERT_EQUAL(c.is_left_bower(x), true);
+    ASSERT_EQUAL(c.is_left_bower(x), false);
     ASSERT_EQUAL(b.is_left_bower(x), false);
     ASSERT_EQUAL(a.is_left_bower(x), false);
 }
@@ -89,9 +92,9 @@ TEST(test_operator1)
     Card c("Two", "Spades");
     Card b("Jack", "Spades");
     Card a("Two", "Hearts");
-    ASSERT_EQUAL(operator<(a, b), true);
-    ASSERT_EQUAL(operator<(a, c), false);
-    ASSERT_EQUAL(operator<(c, b), false);
+    ASSERT_EQUAL(a < b, true);
+    ASSERT_EQUAL(a < c, false);
+    ASSERT_EQUAL(c < b, true);
 }
 
 TEST(test_operator2)
@@ -99,9 +102,9 @@ TEST(test_operator2)
     Card c("Two", "Spades");
     Card b("Jack", "Spades");
     Card a("Two", "Hearts");
-    ASSERT_EQUAL(operator>(a, b), false);
-    ASSERT_EQUAL(operator>(a, c), false);
-    ASSERT_EQUAL(operator>(c, b), true);
+    ASSERT_EQUAL(a > b, false);
+    ASSERT_EQUAL(a > c, true);
+    ASSERT_EQUAL(c > b, false);
 }
 
 TEST(test_operator3)
@@ -109,35 +112,37 @@ TEST(test_operator3)
     Card c("Two", "Spades");
     Card b("Jack", "Spades");
     Card a("Two", "Hearts");
-    ASSERT_EQUAL(operator==(a, b), false);
-    ASSERT_EQUAL(operator==(a, c), true);
-    ASSERT_EQUAL(operator==(c, b), false);
+    ASSERT_EQUAL(a == b, false);
+    ASSERT_EQUAL(a == c, false);
+    ASSERT_EQUAL(c == b, false);
+    ASSERT_EQUAL(a == a, true);
 }
 TEST(test_operator4)
-{
-    string c = "Spades";
-    string b = "Spades";
-    string a = "Hearts";
-    ASSERT_EQUAL(operator!=(a, b), true);
-    ASSERT_EQUAL(operator!=(a, c), true);
-    ASSERT_EQUAL(operator!=(c, b), true);
-}
-
-TEST(test_suit_next)
-{
-    string c = "Spades";
-    string b = "Spades";
-    string a = "Hearts";
-    ASSERT_EQUAL(Suit_next(a), "Clubs");
-    ASSERT_EQUAL(Suit_next(b), "Clubs");
-    ASSERT_EQUAL(Suit_next(c), "Diamonds");
-}
-
-TEST(test_card_less)
 {
     Card c("Two", "Spades");
     Card b("Jack", "Spades");
     Card a("Two", "Hearts");
+    ASSERT_EQUAL(a != b, true);
+    ASSERT_EQUAL(a != c, true);
+    ASSERT_EQUAL(c != b, true);
+    ASSERT_EQUAL(a != a, false);
+}
+
+TEST(test_suit_next)
+{
+    string c = "Diamonds";
+    string b = "Spades";
+    string a = "Hearts";
+    ASSERT_EQUAL(Suit_next(a), "Diamonds");
+    ASSERT_EQUAL(Suit_next(b), "Clubs");
+    ASSERT_EQUAL(Suit_next(c), "Hearts");
+}
+
+TEST(test_card_less)
+{
+    Card c("Two", "Diamonds");
+    Card b("Jack", "Spades");
+    Card a("Jack", "Hearts");
     ASSERT_EQUAL(Card_less(a, b, "Hearts"), false);
     ASSERT_EQUAL(Card_less(c, b, "Hearts"), true);
     ASSERT_EQUAL(Card_less(a, c, "Hearts"), false);
@@ -148,9 +153,9 @@ TEST(test_card_less2)
     Card c("Two", "Spades");
     Card b("Jack", "Spades");
     Card a("Two", "Hearts");
-    ASSERT_EQUAL(Card_less(a, b, a, "Hearts"), false);
+    ASSERT_EQUAL(Card_less(a, b, c, "Hearts"), false);
     ASSERT_EQUAL(Card_less(c, b, a, "Hearts"), true);
-    ASSERT_EQUAL(Card_less(a, c, a, "Hearts"), false);
+    ASSERT_EQUAL(Card_less(a, c, b, "Hearts"), false);
 }
 
 // Add more test cases here
