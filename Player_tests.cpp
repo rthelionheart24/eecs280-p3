@@ -185,7 +185,7 @@ TEST(test_play_card)
 
   Card nine_clubs(Card::RANK_NINE, Card::SUIT_CLUBS);
   card_played = bob->play_card(nine_clubs, Card::SUIT_SPADES);
-  ASSERT_EQUAL(card_played, d);
+  ASSERT_EQUAL(card_played, e);
   delete bob;
 }
 // Add more tests here

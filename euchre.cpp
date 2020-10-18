@@ -192,7 +192,8 @@ public:
         }
     }
 
-    //Check who wins a trick by finding the greatest valued card and find who played that card
+    //Check who wins a trick by finding the greatest valued card
+    //and find who played that card
     void who_win_the_trick()
     {
         Card highest = middle[0];
@@ -237,7 +238,8 @@ public:
         int tricks_won_t2 = get_tricks_won(players[1]) + get_tricks_won(players[3]);
         if (tricks_won_t1 >= 3)
         {
-            cout << players[0]->get_name() << " and " << players[2]->get_name() << " win the hand" << endl;
+            cout << players[0]->get_name() << " and "
+                 << players[2]->get_name() << " win the hand" << endl;
             //When Team one orders up
             if (defender1 != players[0] && defender1 != players[2])
             {
@@ -263,7 +265,8 @@ public:
 
         else if (tricks_won_t2 >= 3)
         {
-            cout << players[1]->get_name() << " and " << players[3]->get_name() << " win the hand" << endl;
+            cout << players[1]->get_name() << " and "
+                 << players[3]->get_name() << " win the hand" << endl;
             //When Team one orders up
             if (defender1 != players[1] && defender1 != players[3])
             {
@@ -293,7 +296,8 @@ public:
         tricks_won[3] = 0;
     }
 
-    //Check whether there is a winner for the entire game, if there is, return the index of the winner. Else returns -1
+    //Check whether there is a winner for the entire game,
+    //if there is, return the index of the winner. Else returns -1
     int is_there_game_winner()
     {
         for (int i = 0; i < 4; i++)
@@ -305,21 +309,79 @@ public:
     }
 };
 
+int check_args(int argc, char *argv[], bool &shuffle,
+               Player *players[],
+               Pack *deck,
+               int &points_to_win);
+void print_error();
+void game_summary(Game *euchre, Player *players[]);
+
 int main(int argc, char *argv[])
 {
 
     //Used to set up the Game instance
     bool shuffle;
     Player *players[4];
-    Pack *deck;
-    int points_to_win;
+    Pack *deck = new Pack();
+    int points_to_win, check;
 
     for (int i = 0; i < argc; i++)
+    {
         cout << argv[i] << " ";
+    }
     cout << endl;
-    //Initialization
 
-    //Check parameters
+    check = check_args(argc, argv, shuffle, players, deck, points_to_win);
+
+    if (check != 0)
+        return check;
+
+    Game *euchre = new Game(players, deck, shuffle, points_to_win);
+    //Initialization complete
+
+    //Set the first dealer as player 0
+    int hand = 0, winner_seat = 0;
+    do
+    {
+        cout << "Hand " << hand << endl
+             << *euchre->get_dealer() << " deals" << endl;
+
+        if (hand > 0)
+            euchre->set_dealer();
+
+        euchre->shuffle_deck();
+        euchre->deal_card();
+        euchre->order_up();
+        cout << endl;
+        for (int trick = 0; trick < 5; trick++)
+        {
+            if (trick == 0)
+                euchre->first_round_leader();
+
+            euchre->lead();
+            euchre->play();
+            euchre->who_win_the_trick();
+        }
+        euchre->update_points();
+
+        game_summary(euchre, players);
+        hand++;
+        winner_seat = euchre->is_there_game_winner();
+
+    } while (winner_seat == -1);
+
+    cout << *players[winner_seat] << " and "
+         << *euchre->teammate(players[winner_seat]) << " win!" << endl;
+    delete euchre;
+
+    return 0;
+}
+
+int check_args(int argc, char *argv[], bool &shuffle,
+               Player *players[],
+               Pack *deck,
+               int &points_to_win)
+{
     assert(argc == 12);
 
     //Initialize the pack we use
@@ -336,9 +398,7 @@ int main(int argc, char *argv[])
     //Shuffle or not
     if (!strcmp(argv[2], "noshuffle") && !strcmp(argv[2], "shuffle"))
     {
-        cout << "Usage: euchre.exe PACK_FILENAME [shuffle|noshuffle] "
-             << "POINTS_TO_WIN NAME1 TYPE1 NAME2 TYPE2 NAME3 TYPE3 "
-             << "NAME4 TYPE4" << endl;
+        print_error();
         return 2;
     }
     shuffle = true;
@@ -350,9 +410,7 @@ int main(int argc, char *argv[])
     if (points_to_win > 100 || points_to_win < 1)
     {
 
-        cout << "Usage: euchre.exe PACK_FILENAME [shuffle|noshuffle] "
-             << "POINTS_TO_WIN NAME1 TYPE1 NAME2 TYPE2 NAME3 TYPE3 "
-             << "NAME4 TYPE4" << endl;
+        print_error();
         return 3;
     }
 
@@ -364,64 +422,29 @@ int main(int argc, char *argv[])
 
         if (type != "Simple" && type != "Human")
         {
-            cout << "Usage: euchre.exe PACK_FILENAME [shuffle|noshuffle] "
-                 << "POINTS_TO_WIN NAME1 TYPE1 NAME2 TYPE2 NAME3 TYPE3 "
-                 << "NAME4 TYPE4" << endl;
+            print_error();
             return 4;
         }
         players[i / 2 - 2] = Player_factory(name, type);
     }
 
-    Game *euchre = new Game(players, deck, shuffle, points_to_win);
-    //Initialization complete
-
-    //Set the first dealer as player 0
-    int hand = 0, winner_seat = 0;
-    do
-    {
-        cout << "Hand " << hand << endl
-             << *euchre->get_dealer() << " deals" << endl;
-
-        if (hand > 0)
-            euchre->set_dealer();
-
-        euchre->shuffle_deck();
-
-        euchre->deal_card();
-        //Time to make trump and see who is the defender
-        euchre->order_up();
-
-        for (int trick = 0; trick < 5; trick++)
-        {
-            if (trick == 0)
-                euchre->first_round_leader();
-            //Leader leads a card
-            euchre->lead();
-            //The rest follow
-            euchre->play();
-            //Determine who wins the trick
-            euchre->who_win_the_trick();
-        }
-        euchre->update_points();
-
-        cout << players[0]->get_name() << " and " << players[2]->get_name()
-             << " have " << euchre->get_points(players[0])
-             << " points" << endl
-             << players[1]->get_name() << " and "
-             << players[3]->get_name() << " have " << euchre->get_points(players[1])
-             << " points" << endl
-             << endl;
-
-        hand++;
-
-        winner_seat = euchre->is_there_game_winner();
-
-    } while (winner_seat == -1);
-
-    cout << *players[winner_seat] << " and "
-         << *euchre->teammate(players[winner_seat]) << " win!" << endl;
-
-    delete euchre;
-
     return 0;
+}
+
+void print_error()
+{
+    cout << "Usage: euchre.exe PACK_FILENAME [shuffle|noshuffle] "
+         << "POINTS_TO_WIN NAME1 TYPE1 NAME2 TYPE2 NAME3 TYPE3 "
+         << "NAME4 TYPE4" << endl;
+}
+
+void game_summary(Game *euchre, Player *players[])
+{
+    cout << players[0]->get_name() << " and " << players[2]->get_name()
+         << " have " << euchre->get_points(players[0])
+         << " points" << endl
+         << players[1]->get_name() << " and "
+         << players[3]->get_name() << " have " << euchre->get_points(players[1])
+         << " points" << endl
+         << endl;
 }

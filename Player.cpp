@@ -57,8 +57,8 @@ public:
             if (num_trump >= 2)
             {
                 order_up_suit = suit_considered;
-                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl
-                          << std::endl;
+                std::cout << this->get_name() << " orders up "
+                          << order_up_suit << std::endl;
                 return true;
             }
             std::cout << this->get_name() << " passes" << std::endl;
@@ -74,8 +74,8 @@ public:
             if (is_dealer == true)
             {
                 screw_the_dealer(upcard, order_up_suit);
-                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl
-                          << std::endl;
+                std::cout << this->get_name() << " orders up "
+                          << order_up_suit << std::endl;
                 return true;
             }
 
@@ -90,8 +90,8 @@ public:
             if (num_next >= 1)
             {
                 order_up_suit = suit_considered;
-                std::cout << this->get_name() << " orders up " << order_up_suit << std::endl
-                          << std::endl;
+                std::cout << this->get_name() << " orders up "
+                          << order_up_suit << std::endl;
                 return true;
             }
             std::cout << this->get_name() << " passes" << std::endl;
@@ -117,47 +117,45 @@ public:
         {
             Card lead = hand[hand.size() - 1];
             hand.pop_back();
-            std::cout << lead << " led by " << this->get_name() << std::endl;
+            std::cout << lead << " led by "
+                      << this->get_name() << std::endl;
             return lead;
         }
         //If there is trump card
-        else
+
+        bool all_trump = true;
+        for (unsigned int i = 0; i < hand.size(); i++)
         {
-            bool all_trump = true;
-            for (unsigned int i = 0; i < hand.size(); i++)
+            if (!hand[i].is_trump(trump))
+                all_trump = false;
+        }
+        //If all are trump cards. the last card is the greatest
+        if (all_trump == true)
+        {
+            Card lead = hand[find_highest(hand, trump)];
+            hand.erase(find(hand.begin(), hand.end(), lead));
+            std::cout << lead << " led by "
+                      << this->get_name() << std::endl;
+            return lead;
+        }
+        //If some are not trump cards
+
+        Card lead("Two", Suit_next(trump));
+        int track = 0;
+        for (unsigned int i = 0; i < hand.size(); i++)
+        {
+            if (!hand[i].is_trump(trump) &&
+                (Card_less(lead, hand[i], trump) || hand[i] == lead))
             {
-                if (!hand[i].is_trump(trump))
-                    all_trump = false;
-            }
-            //If all are trump cards. the last card is the greatest
-            if (all_trump == true)
-            {
-                Card lead = hand[find_highest(hand, trump)];
-                hand.erase(find(hand.begin(), hand.end(), lead));
-                std::cout << lead << " led by " << this->get_name() << std::endl;
-                return lead;
-            }
-            //If some are not trump cards
-            else
-            {
-                Card lead("Two", Suit_next(trump));
-                int track = 0;
-                for (unsigned int i = 0; i < hand.size(); i++)
-                {
-                    if (!hand[i].is_trump(trump))
-                    {
-                        if (Card_less(lead, hand[i], trump) || hand[i] == lead)
-                        {
-                            lead = hand[i];
-                            track = i;
-                        }
-                    }
-                }
-                hand.erase(hand.begin() + track);
-                std::cout << lead << " led by " << this->get_name() << std::endl;
-                return lead;
+
+                lead = hand[i];
+                track = i;
             }
         }
+        hand.erase(hand.begin() + track);
+        std::cout << lead << " led by "
+                  << this->get_name() << std::endl;
+        return lead;
     }
 
     Card play_card(const Card &led_card, const std::string &trump)
@@ -171,29 +169,28 @@ public:
         {
             Card play = hand[find_lowest(hand, trump)];
             hand.erase(hand.begin() + find_lowest(hand, trump));
-            std::cout << play << " played by " << this->get_name() << std::endl;
+            std::cout << play << " played by "
+                      << this->get_name() << std::endl;
             return play;
         }
         //If they can follow suit
-        else
+
+        Card play("Two", Suit_next(trump));
+        int track = 0;
+        for (unsigned int i = 0; i < hand.size(); i++)
         {
-            Card play("Two", Suit_next(trump));
-            int track = 0;
-            for (unsigned int i = 0; i < hand.size(); i++)
+            if (hand[i].get_suit(trump) == lead_suit &&
+                (Card_less(play, hand[i], led_card, trump) || hand[i] == play))
             {
-                if (hand[i].get_suit(trump) == lead_suit)
-                {
-                    if (Card_less(play, hand[i], led_card, trump) || hand[i] == play)
-                    {
-                        play = hand[i];
-                        track = i;
-                    }
-                }
+
+                play = hand[i];
+                track = i;
             }
-            hand.erase(hand.begin() + track);
-            std::cout << play << " played by " << this->get_name() << std::endl;
-            return play;
         }
+        hand.erase(hand.begin() + track);
+        std::cout << play << " played by "
+                  << this->get_name() << std::endl;
+        return play;
     }
 
     int find_lowest(std::vector<Card> deck, const std::string &trump)
@@ -292,7 +289,8 @@ public:
                       << hand_for_show[i] << std::endl;
 
         std::string choice;
-        std::cout << "Human player " << get_name() << ", please enter a suit, or \"pass\":" << std::endl;
+        std::cout << "Human player " << get_name()
+                  << ", please enter a suit, or \"pass\":" << std::endl;
 
         std::cin >> choice;
         if (choice == "pass")
@@ -302,8 +300,7 @@ public:
         }
         else
         {
-            std::cout << get_name() << " orders up " << choice << std::endl
-                      << std::endl;
+            std::cout << get_name() << " orders up " << choice << std::endl;
             order_up_suit = choice;
             return true;
         }
@@ -321,8 +318,8 @@ public:
         std::cout << "Discard upcard: [-1]" << std::endl;
 
         std::string choice;
-        std::cout << "Human player " << get_name() << ", please select a card to discard:" << std::endl
-                  << std::endl;
+        std::cout << "Human player " << get_name()
+                  << ", please select a card to discard:" << std::endl;
         std::cin >> choice;
         if (choice == "-1")
             hand.pop_back();
@@ -341,7 +338,8 @@ public:
                       << hand[i] << std::endl;
         std::string choice;
         Card lead;
-        std::cout << "Human player " << get_name() << ", please select a card:\n";
+        std::cout << "Human player " << get_name()
+                  << ", please select a card:\n";
         std::cin >> choice;
         lead = hand[stoi(choice)];
         hand.erase(hand.begin() + stoi(choice));
@@ -364,7 +362,8 @@ public:
                       << hand[i] << std::endl;
         std::string choice;
         Card play;
-        std::cout << "Human player " << get_name() << ", please select a card:\n";
+        std::cout << "Human player " << get_name()
+                  << ", please select a card:\n";
         std::cin >> choice;
         play = hand[stoi(choice)];
         hand.erase(hand.begin() + stoi(choice));

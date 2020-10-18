@@ -41,7 +41,8 @@ Card::Card() : rank(RANK_TWO), suit(SUIT_SPADES)
 {
 }
 
-Card::Card(const std::string &rank_in, const std::string &suit_in) : rank(rank_in), suit(suit_in)
+Card::Card(const std::string &rank_in,
+           const std::string &suit_in) : rank(rank_in), suit(suit_in)
 {
     assert(check_suit(suit_in));
     assert(check_rank(rank_in));
@@ -101,16 +102,16 @@ bool Card::is_trump(const std::string &trump) const
 bool operator<(const Card &lhs, const Card &rhs)
 {
 
-    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) <
-        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
+    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + 13, lhs.get_rank()) <
+        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + 13, rhs.get_rank()))
         return true;
-    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) >
-             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
+    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + 13, lhs.get_rank()) >
+             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + 13, rhs.get_rank()))
         return false;
     else
     {
-        if (find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, lhs.get_suit()) <
-            find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, rhs.get_suit()))
+        if (find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + 4, lhs.get_suit()) <
+            find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + 4, rhs.get_suit()))
             return true;
         return false;
     }
@@ -119,17 +120,17 @@ bool operator<(const Card &lhs, const Card &rhs)
 bool operator>(const Card &lhs, const Card &rhs)
 {
 
-    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) >
-        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
+    if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + 13, lhs.get_rank()) >
+        find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + 13, rhs.get_rank()))
         return true;
-    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, lhs.get_rank()) <
-             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + NUM_RANKS, rhs.get_rank()))
+    else if (find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + 13, lhs.get_rank()) <
+             find(RANK_NAMES_BY_WEIGHT, RANK_NAMES_BY_WEIGHT + 13, rhs.get_rank()))
         return false;
     else
     {
 
-        if (find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, lhs.get_suit()) >
-            find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + NUM_SUITS, rhs.get_suit()))
+        if (find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + 4, lhs.get_suit()) >
+            find(SUIT_NAMES_BY_WEIGHT, SUIT_NAMES_BY_WEIGHT + 4, rhs.get_suit()))
             return true;
         return false;
     }
@@ -171,9 +172,9 @@ bool Card_less(const Card &a, const Card &b, const std::string &trump)
     assert(check_suit(trump));
     if (a.is_trump(trump) && !b.is_trump(trump))
         return false;
-    if (!a.is_trump(trump) && b.is_trump(trump))
+    else if (!a.is_trump(trump) && b.is_trump(trump))
         return true;
-    if (a.is_trump(trump) && b.is_trump(trump))
+    else if (a.is_trump(trump) && b.is_trump(trump))
     {
         if (b.is_right_bower(trump))
             return true;
@@ -185,8 +186,7 @@ bool Card_less(const Card &a, const Card &b, const std::string &trump)
             return false;
         return a < b;
     }
-    else
-        return a < b;
+    return a < b;
 }
 bool Card_less(const Card &a, const Card &b, const Card &led_card,
                const std::string &trump)
