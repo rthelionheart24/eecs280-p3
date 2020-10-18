@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
 {
 
     //Used to set up the Game instance
-    bool shuffle;
+    bool shuffle = true;
     Player *players[4];
     Pack *deck;
     int points_to_win, check;
@@ -336,12 +336,10 @@ int main(int argc, char *argv[])
 
     //Initialize the pack we use
     string filename = argv[1];
-    ifstream in;
-    in.open(filename);
+    ifstream in(filename);
     deck = new Pack(in);
 
     //Shuffle or not
-    shuffle = true;
     if (strcmp(argv[2], "noshuffle") == 0)
         shuffle = false;
 
@@ -351,9 +349,7 @@ int main(int argc, char *argv[])
     //Initialize all the players
     for (int i = 4; i <= 10; i += 2)
     {
-        string name(argv[i]), type(argv[i + 1]);
-
-        players[i / 2 - 2] = Player_factory(name, type);
+        players[i / 2 - 2] = Player_factory(argv[i], argv[i + 1]);
     }
 
     Game *euchre = new Game(players, deck, shuffle, points_to_win);
