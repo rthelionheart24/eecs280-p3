@@ -46,7 +46,9 @@ TEST(test_make_trump)
   bob->add_card(a);
 
   Card nine_hearts(Card::RANK_NINE, Card::SUIT_HEARTS);
-  string trump = Card::SUIT_HEARTS;
+  Card nine_spades(Card::RANK_NINE, Card::SUIT_SPADES);
+  string trump = Card::SUIT_CLUBS;
+
   bool orderup = bob->make_trump(
       nine_hearts, //upcard
       true,        //Bob is also the dealer
@@ -54,10 +56,8 @@ TEST(test_make_trump)
       trump        //suit ordered up (if any)
   );
   ASSERT_FALSE(orderup);
-  ASSERT_EQUAL(trump, Card::SUIT_HEARTS);
+  ASSERT_EQUAL(trump, Card::SUIT_CLUBS);
 
-  Card nine_spades(Card::RANK_NINE, Card::SUIT_SPADES);
-  trump = Card::SUIT_SPADES;
   orderup = bob->make_trump(
       nine_spades, //upcard
       true,        //Bob is also the dealer
@@ -67,7 +67,6 @@ TEST(test_make_trump)
   ASSERT_TRUE(orderup);
   ASSERT_EQUAL(trump, Card::SUIT_CLUBS);
 
-  trump = Card::SUIT_SPADES;
   orderup = bob->make_trump(
       nine_spades, //upcard
       false,       //Bob is also the dealer
@@ -77,7 +76,6 @@ TEST(test_make_trump)
   ASSERT_TRUE(orderup);
   ASSERT_EQUAL(trump, Card::SUIT_SPADES);
 
-  trump = Card::SUIT_SPADES;
   orderup = bob->make_trump(
       nine_hearts, //upcard
       false,       //Bob is also the dealer
@@ -180,10 +178,11 @@ TEST(test_play_card)
   bob->add_card(a);
 
   Card nine_hearts(Card::RANK_NINE, Card::SUIT_HEARTS);
+  Card nine_clubs(Card::RANK_NINE, Card::SUIT_CLUBS);
+
   Card card_played = bob->play_card(nine_hearts, Card::SUIT_HEARTS);
   ASSERT_EQUAL(card_played, d);
 
-  Card nine_clubs(Card::RANK_NINE, Card::SUIT_CLUBS);
   card_played = bob->play_card(nine_clubs, Card::SUIT_SPADES);
   ASSERT_EQUAL(card_played, e);
   delete bob;
