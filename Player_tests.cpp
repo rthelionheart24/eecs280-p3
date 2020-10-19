@@ -34,10 +34,10 @@ TEST(test_add_card)
 TEST(test_make_trump)
 {
   Player *bob = Player_factory("Bob", "Simple");
-  Card c(Card::RANK_TWO, Card::SUIT_DIAMONDS);
+  Card c(Card::RANK_KING, Card::SUIT_DIAMONDS);
   Card e(Card::RANK_JACK, Card::SUIT_CLUBS);
   Card d(Card::RANK_JACK, Card::SUIT_SPADES);
-  Card b(Card::RANK_TWO, Card::SUIT_HEARTS);
+  Card b(Card::RANK_EIGHT, Card::SUIT_HEARTS);
   Card a(Card::RANK_TWO, Card::SUIT_SPADES);
   bob->add_card(c);
   bob->add_card(e);
@@ -89,8 +89,8 @@ TEST(test_make_trump)
       trump        //suit ordered up (if any)
   );
 
-  ASSERT_FALSE(orderup);
-  ASSERT_EQUAL(trump, Card::SUIT_SPADES);
+  ASSERT_TRUE(orderup);
+  ASSERT_EQUAL(trump, Card::SUIT_DIAMONDS);
 
   delete bob;
 }
@@ -126,7 +126,7 @@ TEST(add_and_discard)
   delete alice;
 }
 
-TEST(test_lead_card)
+TEST(test_lead_card_simple)
 { //simple
   /*string c = "Spades";
     string b = "Spades";
@@ -156,6 +156,47 @@ TEST(test_lead_card)
 
   card_led = bob->lead_card(Card::SUIT_DIAMONDS);
   ASSERT_EQUAL(card_led, b); //check led card
+  delete bob;
+}
+TEST(test_lead_card_edge1)
+{
+  Player *bob = Player_factory("Bob", "Simple");
+  Card c(Card::RANK_ACE, Card::SUIT_HEARTS);
+  Card e(Card::RANK_QUEEN, Card::SUIT_HEARTS);
+  Card d(Card::RANK_JACK, Card::SUIT_HEARTS);
+  Card b(Card::RANK_EIGHT, Card::SUIT_HEARTS);
+  Card a(Card::RANK_TWO, Card::SUIT_HEARTS);
+
+  bob->add_card(c);
+  bob->add_card(e);
+  bob->add_card(d);
+  bob->add_card(b);
+  bob->add_card(a);
+
+  Card card_led;
+  card_led = bob->lead_card(Card::SUIT_HEARTS);
+  ASSERT_EQUAL(card_led, d);
+  delete bob;
+}
+
+TEST(test_lead_card_edge2)
+{
+  Player *bob = Player_factory("Bob", "Simple");
+  Card c(Card::RANK_ACE, Card::SUIT_HEARTS);
+  Card e(Card::RANK_QUEEN, Card::SUIT_DIAMONDS);
+  Card d(Card::RANK_JACK, Card::SUIT_HEARTS);
+  Card b(Card::RANK_EIGHT, Card::SUIT_SPADES);
+  Card a(Card::RANK_TWO, Card::SUIT_DIAMONDS);
+
+  bob->add_card(c);
+  bob->add_card(e);
+  bob->add_card(d);
+  bob->add_card(b);
+  bob->add_card(a);
+
+  Card card_led;
+  card_led = bob->lead_card(Card::SUIT_CLUBS);
+  ASSERT_EQUAL(card_led, c);
   delete bob;
 }
 
