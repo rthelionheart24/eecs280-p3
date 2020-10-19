@@ -83,7 +83,7 @@ public:
             int num_next = 0;
             for (unsigned int i = 0; i < hand.size(); i++)
             {
-                if (hand[i].is_trump(suit_considered))
+                if (hand[i].is_trump(suit_considered) && hand[i].is_face())
                     num_next++;
             }
 

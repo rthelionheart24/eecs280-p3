@@ -89,8 +89,8 @@ TEST(test_make_trump)
       trump        //suit ordered up (if any)
   );
 
-  ASSERT_TRUE(orderup);
-  ASSERT_EQUAL(trump, Card::SUIT_DIAMONDS);
+  ASSERT_FALSE(orderup);
+  ASSERT_EQUAL(trump, Card::SUIT_SPADES);
 
   delete bob;
 }
